@@ -1,0 +1,530 @@
+---
+import { sounds, categoryLabel, type SoundCategory } from '../data/sounds.ts';
+import SoundIcon from './SoundIcon.astro';
+
+const categories: SoundCategory[] = ['nature', 'urban', 'generated'];
+---
+
+<section class="demo" id="try-it" aria-labelledby="demo-heading">
+  <div class="container">
+    <header class="demo-header">
+      <span class="eyebrow">Try it in your browser</span>
+      <h2 id="demo-heading">A taste, before you download.</h2>
+      <p class="demo-sub">
+        The same fourteen soundscapes, the same mixer behavior. Drag a slider — Murmur will load and loop the
+        sound on demand. Use the share button to send your mix to a friend.
+      </p>
+    </header>
+
+    <div class="demo-bar" data-mixer-bar data-playing="true">
+      <button
+        type="button"
+        class="play-btn"
+        data-mixer-play
+        aria-label="Pause all sounds"
+        aria-pressed="true"
+      >
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M5 3v18l16-9z"></path>
+        </svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M6 4h4v16H6zM14 4h4v16h-4z"></path>
+        </svg>
+      </button>
+
+      <div class="master">
+        <label for="master-vol" class="master-label mono">Master</label>
+        <input
+          id="master-vol"
+          type="range"
+          min="0"
+          max="100"
+          value="75"
+          step="1"
+          data-mixer-master
+          aria-label="Master volume"
+        />
+      </div>
+
+      <div class="bar-actions">
+        <span class="active-count mono" data-active-count>0 active</span>
+        <button type="button" class="bar-btn" data-mixer-reset>Reset</button>
+        <button type="button" class="bar-btn bar-btn-share" data-mixer-share>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8 M16 6l-4-4-4 4 M12 2v13"></path>
+          </svg>
+          <span>Share mix</span>
+        </button>
+      </div>
+    </div>
+
+    {categories.map((cat) => (
+      <div class="cat-block">
+        <h3 class="cat-title">{categoryLabel[cat]}</h3>
+        <div class="card-grid">
+          {sounds.filter((s) => s.category === cat).map((s) => (
+            <article
+              class={`pad pad--${s.category}`}
+              data-sound={s.id}
+              data-loaded="false"
+              data-active="false"
+            >
+              <div class="pad-glow" aria-hidden="true"></div>
+              <button
+                type="button"
+                class="pad-icon"
+                data-pad-toggle
+                aria-label={`Toggle ${s.name}`}
+                aria-pressed="false"
+              >
+                <SoundIcon path={s.iconPath} size={22} />
+              </button>
+              <h4 class="pad-name">{s.name}</h4>
+              <div class="pad-slider">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="0"
+                  step="1"
+                  aria-label={`${s.name} volume`}
+                />
+                <span class="pad-percent mono" aria-hidden="true">0%</span>
+              </div>
+              <span class="pad-loading mono" aria-live="polite">loading…</span>
+            </article>
+          ))}
+        </div>
+      </div>
+    ))}
+
+    <p class="share-toast mono" data-share-toast role="status">Link copied</p>
+  </div>
+</section>
+
+<style>
+  .demo {
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(33, 18, 14, 0.4),
+      transparent
+    );
+    position: relative;
+    overflow: hidden;
+  }
+
+  .demo-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-7);
+    max-width: 56ch;
+  }
+
+  .demo-sub { color: var(--text-secondary); font-size: var(--fs-lg); }
+
+  /* Sticky control bar — stays in view as the user scrolls through pads */
+  .demo-bar {
+    position: sticky;
+    top: calc(56px + var(--sp-3));
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-5);
+    padding: var(--sp-3);
+    /* Solid fallback for browsers without color-mix (Chrome <111, Safari <16.2). */
+    background: var(--bg-elevated);
+    background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-lg);
+    margin-bottom: var(--sp-7);
+    box-shadow: 0 24px 60px -32px rgba(0, 0, 0, 0.6);
+  }
+
+  .play-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--text-on-amber);
+    display: grid;
+    place-items: center;
+    transition: transform var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-med) var(--ease-out);
+    box-shadow: 0 8px 24px -8px var(--accent-glow);
+    flex-shrink: 0;
+  }
+  .play-btn:hover { background: var(--accent-hover); transform: scale(1.04); }
+  .play-btn svg { width: 16px; height: 16px; grid-area: 1 / 1; transition: opacity var(--dur-fast) var(--ease-out); }
+  .play-btn .icon-pause { opacity: 0; }
+  [data-mixer-bar][data-playing='true'] .icon-play { opacity: 0; }
+  [data-mixer-bar][data-playing='true'] .icon-pause { opacity: 1; }
+
+  .master { flex: 1 1 240px; display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
+  .master-label { color: var(--text-tertiary); font-size: var(--fs-xs); letter-spacing: 0.18em; text-transform: uppercase; }
+  .master input[type='range'] { flex: 1; }
+
+  .bar-actions { display: flex; align-items: center; gap: var(--sp-3); flex-shrink: 0; }
+  .active-count { color: var(--text-tertiary); font-size: var(--fs-xs); letter-spacing: 0.05em; }
+  .bar-btn {
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    border: 1px solid var(--hairline);
+    transition: color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+    display: inline-flex; align-items: center; gap: var(--sp-2);
+  }
+  .bar-btn:hover { color: var(--text-primary); border-color: var(--hairline-strong); background: var(--bg-card); }
+  .bar-btn-share { color: var(--accent); border-color: rgba(245, 195, 117, 0.3); }
+  .bar-btn-share:hover { color: var(--accent-hover); border-color: var(--accent); }
+
+  /* Category groupings — small disclosures of the catalog structure */
+  .cat-block { margin-bottom: var(--sp-7); }
+  .cat-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: var(--sp-4);
+    padding-bottom: var(--sp-2);
+    border-bottom: 1px dashed var(--hairline);
+    font-weight: 500;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--sp-4);
+  }
+
+  /* "Pad" — soundboard cell. Inactive: dim. Active: glowing amber. */
+  .pad {
+    --pad-color: var(--text-secondary);
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    padding: var(--sp-5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--sp-3);
+    transition: border-color var(--dur-med) var(--ease-out),
+      background var(--dur-med) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-med) var(--ease-out);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .pad:hover { transform: translateY(-2px); border-color: var(--hairline-strong); }
+
+  .pad[data-active='true'] {
+    --pad-color: var(--accent);
+    background: var(--bg-card-active);
+    border-color: rgba(245, 195, 117, 0.25);
+    box-shadow: 0 24px 48px -24px var(--accent-glow);
+  }
+
+  .pad-glow {
+    position: absolute;
+    inset: -50%;
+    background: radial-gradient(circle at 50% 0%, var(--accent-glow), transparent 60%);
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out);
+    z-index: -1;
+    pointer-events: none;
+  }
+  .pad[data-active='true'] .pad-glow { opacity: 0.6; animation: glow-breathe 4s ease-in-out infinite; }
+
+  @keyframes glow-breathe {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.08); opacity: 0.7; }
+  }
+
+  /*
+   * The pad icon is a real <button> (was a <div>) so keyboard users can tab to
+   * it and toggle the sound on/off via Space/Enter — matching the click-to-toggle
+   * affordance that pointer users get.
+   */
+  .pad-icon {
+    width: 48px; height: 48px; border-radius: 999px;
+    display: grid; place-items: center;
+    padding: 0;
+    color: var(--pad-color);
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline);
+    cursor: pointer;
+    transition: color var(--dur-med) var(--ease-out),
+      background var(--dur-med) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+  .pad-icon:hover { transform: scale(1.05); }
+  .pad-icon:active { transform: scale(0.97); }
+  .pad-icon svg { width: 22px; height: 22px; }
+
+  .pad[data-active='true'] .pad-icon {
+    color: var(--accent);
+    background: rgba(245, 195, 117, 0.12);
+    border-color: rgba(245, 195, 117, 0.4);
+  }
+
+  .pad-name {
+    font-family: 'Manrope Variable', sans-serif;
+    font-size: var(--fs-body);
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.005em;
+  }
+
+  .pad-slider { display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-2); width: 100%; }
+  .pad-percent { color: var(--text-tertiary); font-size: var(--fs-xs); min-height: 1em; transition: color var(--dur-fast) var(--ease-out); }
+  .pad[data-active='true'] .pad-percent { color: var(--accent); }
+
+  .pad-loading {
+    position: absolute;
+    bottom: var(--sp-3);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-out);
+    pointer-events: none;
+  }
+  .pad[data-loaded='loading'] .pad-loading { opacity: 1; }
+  .pad[data-loaded='loading'] .pad-percent { opacity: 0; }
+
+  /* Slider styling — works for master + per-pad. Custom thumb in amber. */
+  input[type='range'] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 999px;
+    border: 2px solid var(--bg-base);
+    box-shadow: 0 2px 8px var(--accent-glow);
+    transition: transform var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  input[type='range']::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  input[type='range']::-moz-range-thumb {
+    width: 18px; height: 18px;
+    background: var(--accent);
+    border: 2px solid var(--bg-base);
+    border-radius: 999px;
+    box-shadow: 0 2px 8px var(--accent-glow);
+  }
+  /* Replace the default focus outline (which we removed) with a visible focus ring on the thumb. */
+  input[type='range']:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px var(--bg-base), 0 0 0 5px var(--tile-amber);
+    transform: scale(1.1);
+  }
+  input[type='range']:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 3px var(--bg-base), 0 0 0 5px var(--tile-amber);
+  }
+
+  .share-toast {
+    position: fixed;
+    bottom: var(--sp-6);
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: var(--sp-3) var(--sp-5);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 999px;
+    font-size: var(--fs-sm);
+    box-shadow: 0 24px 60px -16px rgba(0, 0, 0, 0.6);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-med) var(--ease-out),
+      transform var(--dur-med) var(--ease-out);
+  }
+  .share-toast[data-show='true'] {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 720px) {
+    .demo-bar {
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+      top: calc(56px + var(--sp-2));
+    }
+    .master { flex: 1 1 100%; order: 2; }
+    .bar-actions { order: 1; flex: 1; justify-content: flex-end; }
+    .active-count { display: none; }
+    .bar-btn-share span { display: none; }
+  }
+
+  /*
+   * Reduced-motion overrides. The hardcoded keyframe durations on .pad-glow
+   * and .hero-mark drift can't be neutralised by the global token-collapse,
+   * so we kill them explicitly here.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .pad[data-active='true'] .pad-glow { animation: none; }
+    .pad-icon { transition: none; }
+    .pad-icon:hover, .pad-icon:active { transform: none; }
+  }
+</style>
+
+<script>
+  import { Mixer, encodeMix, decodeMix } from '../scripts/mixer';
+
+  // BASE_URL is templated by Vite at build time — works for any deployed base path
+  // (project page /Murmur, custom domain at root, dev /). Avoids the runtime
+  // pathname regex that broke on apex domains and multi-segment paths.
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const mixer = new Mixer((id) => `${base}/sounds/${id}.ogg`);
+
+  const bar = document.querySelector<HTMLElement>('[data-mixer-bar]')!;
+  const playBtn = document.querySelector<HTMLButtonElement>('[data-mixer-play]')!;
+  const masterSlider = document.querySelector<HTMLInputElement>('[data-mixer-master]')!;
+  const resetBtn = document.querySelector<HTMLButtonElement>('[data-mixer-reset]')!;
+  const shareBtn = document.querySelector<HTMLButtonElement>('[data-mixer-share]')!;
+  const activeCount = document.querySelector<HTMLElement>('[data-active-count]')!;
+  const toast = document.querySelector<HTMLElement>('[data-share-toast]')!;
+  const pads = Array.from(document.querySelectorAll<HTMLElement>('.pad'));
+
+  // Per-pad apply() functions stored by sound id so the hash-restore path can
+  // reuse the same loading/error logic instead of poking DOM attributes directly.
+  const padApply = new Map<string, (value: number) => Promise<void>>();
+
+  for (const pad of pads) {
+    const id = pad.dataset.sound!;
+    const slider = pad.querySelector<HTMLInputElement>('input[type=range]')!;
+    const percent = pad.querySelector<HTMLElement>('.pad-percent')!;
+    const toggle = pad.querySelector<HTMLButtonElement>('[data-pad-toggle]')!;
+
+    const apply = async (value: number) => {
+      const v = value / 100;
+      const wasZero = pad.dataset.active !== 'true';
+      pad.dataset.active = v > 0 ? 'true' : 'false';
+      toggle.setAttribute('aria-pressed', v > 0 ? 'true' : 'false');
+      percent.textContent = v > 0 ? `${Math.round(value)}%` : '';
+      if (v > 0 && wasZero && pad.dataset.loaded === 'false') {
+        pad.dataset.loaded = 'loading';
+      }
+      try {
+        await mixer.setVolume(id, v);
+        if (v > 0) pad.dataset.loaded = 'true';
+      } catch (err) {
+        console.error('mixer setVolume failed', err);
+        pad.dataset.loaded = 'false';
+        pad.dataset.active = 'false';
+        toggle.setAttribute('aria-pressed', 'false');
+        percent.textContent = '';
+        slider.value = '0';
+      }
+      updateActiveCount();
+    };
+    padApply.set(id, apply);
+
+    slider.addEventListener('input', () => void apply(Number(slider.value)));
+    toggle.addEventListener('click', () => {
+      const next = mixer.getVolume(id) > 0 ? 0 : 60;
+      slider.value = String(next);
+      void apply(next);
+    });
+  }
+
+  // Master controls
+  playBtn.addEventListener('click', () => {
+    const next = !mixer.isPlaying;
+    mixer.setPlaying(next);
+    bar.dataset.playing = next ? 'true' : 'false';
+    playBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+    playBtn.setAttribute('aria-label', next ? 'Pause all sounds' : 'Play all sounds');
+  });
+
+  masterSlider.addEventListener('input', () => {
+    mixer.setMasterVolume(Number(masterSlider.value) / 100);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    for (const apply of padApply.values()) void apply(0);
+    for (const pad of pads) {
+      const slider = pad.querySelector<HTMLInputElement>('input[type=range]')!;
+      slider.value = '0';
+    }
+  });
+
+  let toastTimer: number | undefined;
+  shareBtn.addEventListener('click', async () => {
+    const mix = mixer.exportMix();
+    const fragment = encodeMix(mix);
+    const url = new URL(window.location.href);
+    url.hash = fragment ? `mix=${fragment}` : '';
+    history.replaceState(null, '', url.toString());
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      toast.textContent = fragment ? 'Link copied' : 'Empty mix';
+    } catch {
+      toast.textContent = 'Copy failed — link is in the address bar';
+    }
+    toast.dataset.show = 'true';
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.dataset.show = 'false';
+    }, 2500);
+  });
+
+  function updateActiveCount() {
+    const n = Array.from(document.querySelectorAll('.pad[data-active="true"]')).length;
+    activeCount.textContent = n === 0 ? '0 active' : n === 1 ? '1 active' : `${n} active`;
+  }
+
+  // Restore mix from URL hash on load. Slider visuals get set immediately; actual
+  // playback waits for the first user gesture (browsers block autoplay until then).
+  const hash = window.location.hash.replace(/^#/, '');
+  const mixParam = new URLSearchParams(hash).get('mix');
+  if (mixParam) {
+    const restored = decodeMix(mixParam);
+    for (const [id, vol] of Object.entries(restored)) {
+      const pad = pads.find((p) => p.dataset.sound === id);
+      if (!pad) continue;
+      const slider = pad.querySelector<HTMLInputElement>('input[type=range]')!;
+      slider.value = String(Math.round(vol * 100));
+    }
+
+    // Listeners are explicit-removed inside start (no `{ once: true }` so the
+    // remove path is symmetric and we never end up with a half-removed listener).
+    const start = () => {
+      window.removeEventListener('pointerdown', start);
+      window.removeEventListener('keydown', start);
+      // Reuse each pad's apply() so the loading state, aria-pressed, and active
+      // count all update through the normal code path. Without this, sounds
+      // that fail to load would appear "active" at full percentage forever.
+      for (const [id, vol] of Object.entries(restored)) {
+        const apply = padApply.get(id);
+        if (apply) void apply(Math.round(vol * 100));
+      }
+    };
+    window.addEventListener('pointerdown', start);
+    window.addEventListener('keydown', start);
+  }
+</script>

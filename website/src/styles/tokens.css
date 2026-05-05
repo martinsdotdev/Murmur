@@ -1,0 +1,101 @@
+/*
+ * Color tokens from docs/superpowers/specs/2026-05-03-app-icon-design.md.
+ * The app's icon palette is the website's palette — keep them in lockstep.
+ */
+
+:root {
+  /* Tile gradient — used for hero glow and accent backgrounds */
+  --tile-cream: #ffedc8;
+  --tile-amber: #f5c375;
+  --tile-deep: #a85820;
+
+  /* Coffee — used for buttons, dark surfaces, the "ink" of the brand */
+  --coffee-mid: #8b5e3c;
+  --coffee-deep: #4e342e;
+  --coffee-ink: #21120e;
+
+  /* Site backgrounds — darker than the icon's deepest tile to read as backdrop */
+  --bg-base: #14090a;
+  --bg-elevated: #1f1311;
+  --bg-card: #28191510;
+  --bg-card-active: #f5c37514;
+
+  /* Text */
+  --text-primary: #faf6ee;
+  --text-secondary: #c8b89e;
+  --text-tertiary: #8b7e6e;
+  --text-on-amber: #1a0e0a;
+
+  /* Strokes & dividers */
+  --hairline: rgba(250, 246, 238, 0.08);
+  --hairline-strong: rgba(250, 246, 238, 0.16);
+
+  /* Accent (CTAs, active states) */
+  --accent: var(--tile-amber);
+  --accent-hover: var(--tile-cream);
+  --accent-glow: rgba(245, 195, 117, 0.35);
+
+  /* Semantic */
+  --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--tile-amber);
+
+  /* Type scale (modular, ratio 1.25 from 1rem base) */
+  --fs-xs: 0.8rem;
+  --fs-sm: 0.9rem;
+  --fs-body: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2.25rem;
+  --fs-3xl: 3.5rem;
+  --fs-display: clamp(3rem, 7vw, 6rem);
+
+  /* Spacing scale */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+  --sp-9: 6rem;
+  --sp-10: 8rem;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-med: 320ms;
+  --dur-slow: 600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-med: 0ms;
+    --dur-slow: 0ms;
+  }
+}
+
+/* Light theme inverts to a cream backdrop — the icon naturally sits well on either */
+:root[data-theme='light'] {
+  --bg-base: #faf6ee;
+  --bg-elevated: #ffffff;
+  --bg-card: #21120e08;
+  --bg-card-active: #f5c37528;
+
+  --text-primary: #1f1311;
+  --text-secondary: #5b4936;
+  --text-tertiary: #8b7e6e;
+
+  --hairline: rgba(33, 18, 14, 0.1);
+  --hairline-strong: rgba(33, 18, 14, 0.18);
+
+  --accent-glow: rgba(168, 88, 32, 0.28);
+  --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--coffee-mid);
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 768" width="768" height="768">
+  <defs>
+    <radialGradient id="tile" cx="0.7" cy="0.15" r="0.95">
+      <stop offset="0" stop-color="#FFEDC8"/>
+      <stop offset="0.5" stop-color="#F5C375"/>
+      <stop offset="1" stop-color="#A85820"/>
+    </radialGradient>
+    <linearGradient id="cup" x1="0" y1="253" x2="0" y2="515" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B5E3C"/>
+      <stop offset="100%" stop-color="#21120E"/>
+    </linearGradient>
+    <filter id="cup-shadow" x="-30%" y="-20%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="22" result="blur-ambient"/>
+      <feOffset in="blur-ambient" dx="0" dy="16" result="offset-ambient"/>
+      <feComponentTransfer in="offset-ambient" result="ambient">
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur-key"/>
+      <feOffset in="blur-key" dx="0" dy="4" result="offset-key"/>
+      <feComponentTransfer in="offset-key" result="key">
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="ambient"/>
+        <feMergeNode in="key"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="768" height="768" rx="144" fill="url(#tile)"/>
+  <rect x="170" y="125" width="64" height="64" rx="32" fill="white"/>
+  <rect x="298" y="61" width="64" height="128" rx="32" fill="white"/>
+  <rect x="426" y="125" width="64" height="64" rx="32" fill="white"/>
+  <g filter="url(#cup-shadow)">
+    <path d="M 126 253 C 92 253 64 281 64 315 V 477 a 256 256 0 0 0 509 38 h 24 a 107 107 0 0 0 0 -214 h -22 c -6 -28 -31 -48 -60 -48 H 126 Z M 576 349 h 21 a 59 59 0 1 1 0 118 H 576 V 349 Z"
+          fill="url(#cup)" fill-rule="evenodd"/>
+  </g>
+</svg>

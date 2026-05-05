@@ -1,0 +1,364 @@
+---
+/**
+ * Download section. Tries to fetch the latest GitHub release at build time so
+ * the version + asset URLs are baked into the static HTML. Falls back to
+ * "no release yet" copy when none exists, keeping the section truthful before
+ * the first tag push.
+ */
+import { repoUrl, releasesUrl, latestReleaseApi } from '../data/site.ts';
+
+interface ReleaseAsset {
+  name: string;
+  browser_download_url: string;
+  size: number;
+}
+interface Release {
+  tag_name: string;
+  name: string;
+  published_at: string;
+  html_url: string;
+  assets: ReleaseAsset[];
+}
+
+let release: Release | null = null;
+try {
+  const res = await fetch(latestReleaseApi, {
+    headers: { Accept: 'application/vnd.github+json' },
+  });
+  if (res.ok) release = (await res.json()) as Release;
+} catch {
+  // Offline build / API rate limited — fall through to placeholder.
+}
+
+// Asset names follow `Murmur-{version}-{platform}.msixbundle` and
+// `Murmur-{version}.cer` — see .github/workflows/release.yml. If the release
+// pipeline ever changes the naming convention these regexes need to follow.
+const x64 = release?.assets.find((a) => /-x64\.msixbundle$/i.test(a.name));
+const arm64 = release?.assets.find((a) => /-arm64\.msixbundle$/i.test(a.name));
+const cer = release?.assets.find((a) => /\.cer$/i.test(a.name));
+const version = release?.tag_name?.replace(/^v/, '') ?? null;
+
+function fmtSize(bytes?: number): string {
+  if (!bytes) return '';
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+---
+
+<section class="download" id="download" aria-labelledby="download-heading">
+  <div class="container download-grid">
+    <div class="download-pitch">
+      <span class="eyebrow">Download</span>
+      <h2 id="download-heading">
+        {version
+          ? <>Get Murmur <span class="version-tag mono">v{version}</span></>
+          : 'Almost ready.'}
+      </h2>
+      <p>
+        {version
+          ? 'A small Windows installer. Self-signed for the moment, so you\'ll trust the certificate once and then forget about it.'
+          : 'No public release yet — the binaries will land here as soon as the first version tags. In the meantime, the source is on GitHub and the build instructions are short.'}
+      </p>
+
+      <ul class="reqs">
+        <li><span class="mono">os</span><span>Windows 10 v19041+ or Windows 11</span></li>
+        <li><span class="mono">size</span><span>~50 MB installed</span></li>
+        <li><span class="mono">arch</span><span>x64 · ARM64</span></li>
+        <li><span class="mono">cost</span><span>Free, GPLv3, no telemetry</span></li>
+      </ul>
+    </div>
+
+    <div class="download-card">
+      {version ? (
+        <>
+          <div class="download-cta-row">
+            <a
+              class="btn btn-primary download-primary"
+              href={x64?.browser_download_url ?? releasesUrl}
+              download={x64?.name}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+                <path d="M12 17V3 M6 11l6 6 6-6 M19 21H5"></path>
+              </svg>
+              Download for Windows
+              <span class="download-meta mono">{fmtSize(x64?.size)}</span>
+            </a>
+          </div>
+
+          <div class="download-alt">
+            {arm64 && (
+              <a class="alt-btn mono" href={arm64.browser_download_url} download={arm64.name}>
+                <span>ARM64 build</span>
+                <span class="alt-size">{fmtSize(arm64.size)}</span>
+              </a>
+            )}
+            {cer && (
+              <a class="alt-btn mono" href={cer.browser_download_url} download={cer.name}>
+                <span>Trust certificate</span>
+                <span class="alt-size">.cer</span>
+              </a>
+            )}
+            <a class="alt-btn mono" href={releasesUrl} target="_blank" rel="noopener">
+              <span>All releases</span>
+              <span class="alt-size">→</span>
+            </a>
+          </div>
+        </>
+      ) : (
+        <>
+          <div class="download-cta-row">
+            <a class="btn btn-primary download-primary" href={repoUrl} target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
+                <path
+                  d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.16c-3.2.7-3.87-1.37-3.87-1.37-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.27-5.24-5.65 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.17.92-.26 1.9-.39 2.88-.39s1.96.13 2.88.39c2.2-1.48 3.16-1.17 3.16-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.39-2.69 5.36-5.25 5.65.41.36.78 1.06.78 2.13v3.16c0 .31.21.67.79.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"
+                ></path>
+              </svg>
+              View source on GitHub
+            </a>
+          </div>
+          <p class="download-soon mono">v1.0.0 build coming soon — watch the repo to be notified.</p>
+        </>
+      )}
+
+      {version && (
+        <details class="trust-disclosure">
+          <summary>
+            <span>Why trust a certificate?</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">
+              <path d="m6 9 6 6 6-6"></path>
+            </svg>
+          </summary>
+          <ol class="trust-steps">
+            <li>
+              <span class="step mono">01</span>
+              <div>
+                <strong>Download the certificate</strong>
+                <p>The <span class="mono">.cer</span> file is shipped with each release. Download once per major version.</p>
+              </div>
+            </li>
+            <li>
+              <span class="step mono">02</span>
+              <div>
+                <strong>Install it</strong>
+                <p>Right-click the <span class="mono">.cer</span> → <em>Install Certificate</em> → <em>Local Machine</em> → place in <em>Trusted People</em>.</p>
+              </div>
+            </li>
+            <li>
+              <span class="step mono">03</span>
+              <div>
+                <strong>Run the installer</strong>
+                <p>Double-click the <span class="mono">.msixbundle</span>. Murmur installs from Start menu like any Store app.</p>
+              </div>
+            </li>
+          </ol>
+          <p class="trust-note">
+            Self-signing keeps the project free and independent. A future release may move to a CA-signed cert or Microsoft Store
+            submission to remove this step.
+          </p>
+        </details>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .download {
+    background: linear-gradient(180deg, transparent, rgba(245, 195, 117, 0.04) 50%, transparent);
+  }
+
+  .download-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-7);
+    align-items: start;
+  }
+
+  @media (max-width: 880px) {
+    .download-grid { grid-template-columns: 1fr; gap: var(--sp-5); }
+  }
+
+  .download-pitch {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .download-pitch h2 .version-tag {
+    color: var(--accent);
+    font-size: 0.65em;
+    margin-left: var(--sp-2);
+    padding: var(--sp-1) var(--sp-2);
+    background: var(--bg-card-active);
+    border-radius: var(--r-sm);
+    border: 1px solid rgba(245, 195, 117, 0.3);
+    vertical-align: middle;
+  }
+
+  .reqs {
+    list-style: none;
+    margin-top: var(--sp-4);
+    border-top: 1px dashed var(--hairline);
+  }
+
+  .reqs li {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: var(--sp-4);
+    padding-block: var(--sp-3);
+    border-bottom: 1px dashed var(--hairline);
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+  }
+
+  .reqs li .mono {
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: var(--fs-xs);
+  }
+
+  .download-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-xl);
+    padding: var(--sp-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    box-shadow: 0 40px 100px -32px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 rgba(250, 246, 238, 0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .download-card::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -40%;
+    width: 60%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, var(--accent-glow), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .download-cta-row, .download-alt, .download-soon, .trust-disclosure {
+    position: relative;
+    z-index: 1;
+  }
+
+  .download-primary {
+    width: 100%;
+    justify-content: center;
+    padding-block: var(--sp-4);
+    font-size: var(--fs-lg);
+  }
+
+  .download-meta {
+    margin-left: auto;
+    color: var(--text-on-amber);
+    opacity: 0.7;
+    font-size: var(--fs-xs);
+  }
+
+  .download-alt {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--sp-2);
+  }
+
+  .alt-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-3);
+    border-radius: var(--r-md);
+    background: var(--bg-card);
+    border: 1px solid var(--hairline);
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    transition: color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .alt-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--hairline-strong);
+    background: var(--bg-elevated);
+  }
+
+  .alt-size { color: var(--text-tertiary); }
+
+  .download-soon {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+    text-align: center;
+    padding-block: var(--sp-3);
+  }
+
+  .trust-disclosure {
+    border-top: 1px dashed var(--hairline);
+    padding-top: var(--sp-4);
+  }
+
+  .trust-disclosure summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+  }
+  .trust-disclosure summary::-webkit-details-marker { display: none; }
+  .trust-disclosure summary:hover { color: var(--text-primary); }
+  .trust-disclosure[open] .chevron { transform: rotate(180deg); }
+  .chevron { transition: transform var(--dur-med) var(--ease-out); }
+
+  .trust-steps {
+    list-style: none;
+    margin-top: var(--sp-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+
+  .trust-steps li {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: var(--sp-3);
+    align-items: start;
+  }
+
+  .step {
+    color: var(--accent);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    line-height: 1.6;
+  }
+
+  .trust-steps strong {
+    color: var(--text-primary);
+    font-weight: 500;
+    display: block;
+    font-size: var(--fs-sm);
+    margin-bottom: 2px;
+  }
+
+  .trust-steps p {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    margin: 0;
+  }
+
+  .trust-note {
+    margin-top: var(--sp-4);
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+  }
+</style>

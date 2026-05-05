@@ -1,0 +1,185 @@
+---
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import BrandLogo from '../components/BrandLogo.astro';
+import Footer from '../components/Footer.astro';
+import { repoUrl } from '../data/site.ts';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Murmur — Ambient sound mixer for Windows',
+  description = 'Mix nature, city, and soft static into your own ambience. An open-source Windows port of Blanket.',
+} = Astro.props;
+
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {/* og:image is intentionally omitted until a 1200×630 social card is generated.
+        Twitter card is set to `summary` so the link still unfurls — falls back to
+        favicon. Switch back to `summary_large_image` after committing /og-image.png. */}
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" type="image/x-icon" href={`${baseUrl}/favicon.ico`} />
+    <link rel="canonical" href={Astro.url.href} />
+
+    <title>{title}</title>
+
+    {/* No-flash theme bootstrap. Runs synchronously before paint. */}
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.dataset.theme = stored;
+            return;
+          }
+        } catch {}
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        document.documentElement.dataset.theme = prefersLight ? 'light' : 'dark';
+      })();
+    </script>
+  </head>
+
+  <body>
+    <header class="nav-shell">
+      <div class="container nav-grid">
+        <a href={`${baseUrl}/`} class="wordmark" aria-label="Murmur — home">
+          <BrandLogo size={32} />
+          <span class="wordmark-text">murmur<span class="dot">.</span></span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#try-it">Try it</a>
+          <a href="#download">Download</a>
+        </nav>
+        <div class="nav-actions">
+          <a href={repoUrl} class="nav-icon" aria-label="View source on GitHub" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.16c-3.2.7-3.87-1.37-3.87-1.37-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.27-5.24-5.65 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.17.92-.26 1.9-.39 2.88-.39s1.96.13 2.88.39c2.2-1.48 3.16-1.17 3.16-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.39-2.69 5.36-5.25 5.65.41.36.78 1.06.78 2.13v3.16c0 .31.21.67.79.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"
+              ></path>
+            </svg>
+          </a>
+          <ThemeToggle />
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <style>
+      .nav-shell {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        /* Solid fallback for browsers without color-mix (Chrome <111, Safari <16.2). */
+        background: var(--bg-base);
+        background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+        backdrop-filter: saturate(180%) blur(20px);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        border-bottom: 1px solid var(--hairline);
+      }
+
+      .nav-grid {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: var(--sp-6);
+        padding-block: var(--sp-3);
+      }
+
+      .wordmark {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-3);
+        color: var(--text-primary);
+      }
+
+      .wordmark:hover {
+        color: var(--text-primary);
+      }
+
+      .wordmark-text {
+        font-family: 'Fraunces Variable', serif;
+        font-variation-settings: 'opsz' 36, 'SOFT' 100, 'WONK' 1;
+        font-weight: 500;
+        font-size: 1.4rem;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+
+      .wordmark-text .dot {
+        color: var(--accent);
+      }
+
+      .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: var(--sp-6);
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        font-size: var(--fs-sm);
+        font-weight: 500;
+        letter-spacing: -0.005em;
+      }
+
+      .nav-links a:hover {
+        color: var(--text-primary);
+      }
+
+      .nav-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sp-2);
+      }
+
+      .nav-icon {
+        width: 36px;
+        height: 36px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 999px;
+        color: var(--text-secondary);
+        transition: background var(--dur-fast) var(--ease-out),
+          color var(--dur-fast) var(--ease-out);
+      }
+
+      .nav-icon:hover {
+        background: var(--bg-card);
+        color: var(--text-primary);
+      }
+
+      .nav-icon svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (max-width: 720px) {
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </body>
+</html>

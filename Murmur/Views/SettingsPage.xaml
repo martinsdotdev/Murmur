@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Murmur.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    SizeChanged="Page_SizeChanged"
+    mc:Ignorable="d">
+
+    <Page.KeyboardAccelerators>
+        <KeyboardAccelerator Key="Escape" Invoked="EscapeAccelerator_Invoked" />
+    </Page.KeyboardAccelerators>
+
+    <Grid>
+        <Grid x:Name="ContentRoot" HorizontalAlignment="Center">
+            <ScrollViewer
+                HorizontalScrollMode="Disabled"
+                VerticalScrollBarVisibility="Auto"
+                VerticalScrollMode="Enabled">
+                <StackPanel Padding="16,16,16,32" Spacing="16">
+
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Margin="0,0,0,4"
+                            AutomationProperties.HeadingLevel="Level2"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Playback" />
+
+                        <controls:SettingsCard Description="Closing the window keeps Murmur in the system tray." Header="Continue playing in the background">
+                            <controls:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE74C;" />
+                            </controls:SettingsCard.HeaderIcon>
+                            <ToggleSwitch
+                                AutomationProperties.AutomationId="BackgroundPlaybackToggle"
+                                IsOn="{x:Bind ViewModel.BackgroundPlayback, Mode=TwoWay}"
+                                MinWidth="0"
+                                OffContent=""
+                                OnContent="" />
+                        </controls:SettingsCard>
+
+                        <controls:SettingsCard Description="Keeps the CPU awake while at least one sound is playing." Header="Prevent the system from sleeping">
+                            <controls:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE945;" />
+                            </controls:SettingsCard.HeaderIcon>
+                            <ToggleSwitch
+                                AutomationProperties.AutomationId="InhibitSuspensionToggle"
+                                IsOn="{x:Bind ViewModel.InhibitSuspension, Mode=TwoWay}"
+                                MinWidth="0"
+                                OffContent=""
+                                OnContent="" />
+                        </controls:SettingsCard>
+
+                        <controls:SettingsCard Description="Murmur will start each session paused, regardless of last state." Header="Start paused">
+                            <controls:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE769;" />
+                            </controls:SettingsCard.HeaderIcon>
+                            <ToggleSwitch
+                                AutomationProperties.AutomationId="StartPausedToggle"
+                                IsOn="{x:Bind ViewModel.StartPaused, Mode=TwoWay}"
+                                MinWidth="0"
+                                OffContent=""
+                                OnContent="" />
+                        </controls:SettingsCard>
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Margin="0,0,0,4"
+                            AutomationProperties.HeadingLevel="Level2"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="Appearance" />
+
+                        <controls:SettingsCard Description="Light, dark, or follow Windows." Header="Theme">
+                            <controls:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE790;" />
+                            </controls:SettingsCard.HeaderIcon>
+                            <ComboBox
+                                MinWidth="140"
+                                AutomationProperties.AutomationId="ThemeComboBox"
+                                SelectedIndex="{x:Bind ViewModel.ThemeIndex, Mode=TwoWay}">
+                                <ComboBoxItem>System default</ComboBoxItem>
+                                <ComboBoxItem>Light</ComboBoxItem>
+                                <ComboBoxItem>Dark</ComboBoxItem>
+                            </ComboBox>
+                        </controls:SettingsCard>
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Margin="0,0,0,4"
+                            AutomationProperties.HeadingLevel="Level2"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="About" />
+
+                        <controls:SettingsExpander Description="Windows port of Blanket" Header="Murmur">
+                            <controls:SettingsExpander.HeaderIcon>
+                                <BitmapIcon ShowAsMonochrome="False" UriSource="ms-appx:///Assets/AppIcon.ico" />
+                            </controls:SettingsExpander.HeaderIcon>
+                            <TextBlock
+                                x:Name="VersionText"
+                                VerticalAlignment="Center"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Style="{StaticResource CaptionTextBlockStyle}" />
+                            <controls:SettingsExpander.Items>
+                                <controls:SettingsCard
+                                    Click="OpenRepository_Click"
+                                    Description="github.com/martinsdotdev/Murmur"
+                                    Header="Source code"
+                                    IsClickEnabled="True">
+                                    <controls:SettingsCard.HeaderIcon>
+                                        <FontIcon Glyph="&#xE71B;" />
+                                    </controls:SettingsCard.HeaderIcon>
+                                    <FontIcon FontSize="14" Glyph="&#xE8A7;" />
+                                </controls:SettingsCard>
+
+                                <controls:SettingsCard Description="GPLv3 — carried over from upstream Blanket." Header="License">
+                                    <controls:SettingsCard.HeaderIcon>
+                                        <FontIcon Glyph="&#xE82F;" />
+                                    </controls:SettingsCard.HeaderIcon>
+                                </controls:SettingsCard>
+
+                                <controls:SettingsCard Description="Bundled OGGs from upstream Blanket. CC0 / CC-BY / CC-BY-SA per file — see SOUNDS_LICENSING.md in the install directory." Header="Sound assets">
+                                    <controls:SettingsCard.HeaderIcon>
+                                        <FontIcon Glyph="&#xE189;" />
+                                    </controls:SettingsCard.HeaderIcon>
+                                </controls:SettingsCard>
+
+                                <controls:SettingsCard Description="Original GTK app by Rafael Mardojai CM (apps.gnome.org/Blanket)." Header="Upstream credit">
+                                    <controls:SettingsCard.HeaderIcon>
+                                        <FontIcon Glyph="&#xE77B;" />
+                                    </controls:SettingsCard.HeaderIcon>
+                                </controls:SettingsCard>
+                            </controls:SettingsExpander.Items>
+                        </controls:SettingsExpander>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

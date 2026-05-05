@@ -1,0 +1,33 @@
+---
+/**
+ * Renders a lucide.dev icon from a single concatenated `path` string of the
+ * form "M…path-1… M…path-2… M…path-3". Splitting on ` M ` and re-prepending
+ * `M` to each tail segment is the only way to feed multiple subpaths into
+ * separate <path> elements without duplicating per-icon JSX. Centralised here
+ * so the splitter logic exists once.
+ */
+interface Props {
+  path: string;
+  size?: number;
+  strokeWidth?: number;
+  class?: string;
+}
+
+const { path, size = 22, strokeWidth = 1.6, class: className = '' } = Astro.props;
+const segments = path.split(' M ');
+---
+
+<svg
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  width={size}
+  height={size}
+  class={className}
+  aria-hidden="true"
+>
+  {segments.map((seg, i) => <path d={i === 0 ? seg : `M ${seg}`}></path>)}
+</svg>
