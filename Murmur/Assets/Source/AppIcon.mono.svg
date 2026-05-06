@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Unplated taskbar glyph. #000000 is a templating placeholder that
+     build-icons.ps1 swaps per polarity. The viewBox is cropped to the mark
+     rather than the full 768 tile, because Windows draws the plate here and
+     the design's 96 keep-out would otherwise waste half the icon. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="168 156 432 432" width="432" height="432">
+  <rect x="192" y="216" width="96" height="312" rx="48" fill="#000000"/>
+  <rect x="336" y="384" width="96" height="144" rx="48" fill="#000000"/>
+  <rect x="480" y="216" width="96" height="312" rx="48" fill="#000000"/>
+</svg>

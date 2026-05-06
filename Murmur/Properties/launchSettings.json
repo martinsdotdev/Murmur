@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Murmur (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Murmur (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

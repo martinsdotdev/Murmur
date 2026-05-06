@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+
+# Build-copied from ../Murmur/ at dev/build time
+public/sounds/
+public/icon.svg
+public/favicon.ico

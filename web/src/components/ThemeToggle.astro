@@ -1,0 +1,74 @@
+---
+/**
+ * Fluent 2 SubtleButton that toggles between light/dark themes. Reads/writes
+ * localStorage('theme') and sets data-theme on <html>. The bootstrap script in
+ * BaseLayout runs before paint so there is no flash of wrong theme.
+ */
+import Icon from "./Icon.astro"
+import { Moon02Icon, Sun03Icon } from "@hugeicons/core-free-icons"
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="theme-toggle"
+  aria-label="Toggle color theme"
+  title="Toggle color theme"
+>
+  <span class="sun"><Icon icon={Sun03Icon} size={16} /></span>
+  <span class="moon"><Icon icon={Moon02Icon} size={16} /></span>
+</button>
+
+<style>
+  .theme-toggle {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-small);
+    display: inline-grid;
+    place-items: center;
+    color: var(--color-neutral-foreground-2);
+    background-color: var(--color-subtle-background);
+    transition:
+      background-color var(--duration-faster) var(--curve-easy-ease),
+      color var(--duration-faster) var(--curve-easy-ease);
+    position: relative;
+  }
+  .theme-toggle:hover {
+    background-color: var(--color-subtle-background-hover);
+    color: var(--color-neutral-foreground-1);
+  }
+  .theme-toggle:active {
+    background-color: var(--color-subtle-background-pressed);
+  }
+  /* The stacking and cross-fade sit on spans this component owns. Astro scopes
+     styles per component, so a selector reaching the <svg> inside <Icon> would
+     never match it. */
+  .theme-toggle span {
+    grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+    transition: opacity var(--duration-faster) var(--curve-easy-ease);
+  }
+  :root[data-theme="light"] .theme-toggle .sun,
+  :root:not([data-theme="light"]) .theme-toggle .moon {
+    opacity: 0;
+  }
+  :root[data-theme="light"] .theme-toggle .moon,
+  :root:not([data-theme="light"]) .theme-toggle .sun {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  const btn = document.getElementById("theme-toggle")
+  btn?.addEventListener("click", () => {
+    const next =
+      document.documentElement.dataset.theme === "light" ? "dark" : "light"
+    document.documentElement.dataset.theme = next
+    try {
+      localStorage.setItem("theme", next)
+    } catch {
+      /* private browsing, no-op */
+    }
+  })
+</script>

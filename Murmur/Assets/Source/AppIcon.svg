@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 768" width="768" height="768">
+  <defs>
+    <radialGradient id="tile" cx="0.7" cy="0.15" r="0.95">
+      <stop offset="0" stop-color="#FFEDC8"/>
+      <stop offset="0.5" stop-color="#F5C375"/>
+      <stop offset="1" stop-color="#A85820"/>
+    </radialGradient>
+  </defs>
+  <!-- Full-height base under a 744 face: the 24 that shows along the bottom
+       grounds the tile without costing a shadow filter. -->
+  <rect width="768" height="768" rx="144" fill="#A85820"/>
+  <rect width="768" height="744" rx="144" fill="url(#tile)"/>
+  <!-- Fader M: the outer levels are the stems, the dropped middle one the
+       valley. w96 on a 48 gap, heights 312 / 144 / 312, baseline 528. -->
+  <rect x="192" y="216" width="96" height="312" rx="48" fill="#FFFFFF"/>
+  <rect x="336" y="384" width="96" height="144" rx="48" fill="#FFFFFF"/>
+  <rect x="480" y="216" width="96" height="312" rx="48" fill="#FFFFFF"/>
+</svg>

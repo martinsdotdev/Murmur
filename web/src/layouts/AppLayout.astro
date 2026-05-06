@@ -1,0 +1,74 @@
+---
+// Tailwind only: global.css is the landing page's stylesheet, and its element
+// resets would fight Tailwind's preflight on this route.
+import "../styles/tailwind.css"
+import ThemeBootstrap from "../components/ThemeBootstrap.astro"
+import InstallPrompt from "../components/app/InstallPrompt.astro"
+
+interface Props {
+  title?: string
+  description?: string
+}
+
+const {
+  title = "Murmur · Mix ambient sound in your browser",
+  description = "The Murmur ambient sound mixer, in your browser. Blend rain, a fireplace, a train and more; save mixes, set a sleep timer, share links.",
+} = Astro.props
+
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "")
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" type="image/x-icon" href={`${baseUrl}/favicon.ico`} />
+    <link rel="canonical" href={Astro.url.href} />
+
+    {
+      /* Linked from this layout only. The installed app is scoped to /app/, and
+        a manifest linked from an out-of-scope page invites "start_url not in
+        scope" confusion. apple-mobile-web-app-capable is obsolete: modern iOS
+        reads display: standalone from the manifest. */
+    }
+    <link rel="manifest" href={`${baseUrl}/manifest.webmanifest`} />
+    <link
+      rel="apple-touch-icon"
+      href={`${baseUrl}/icons/apple-touch-icon.png`}
+    />
+    <meta name="apple-mobile-web-app-title" content="Murmur" />
+
+    {
+      /* content matches <html data-theme="dark"> so a JS-disabled visitor still
+        gets a coherent value; ThemeBootstrap swaps it to the data-* colour that
+        matches whatever it resolves, and keeps it there. */
+    }
+    <meta
+      name="theme-color"
+      content="#232017"
+      data-light="#faf6ee"
+      data-dark="#232017"
+    />
+
+    <title>{title}</title>
+
+    <ThemeBootstrap />
+    <InstallPrompt />
+  </head>
+
+  <body class="overflow-hidden">
+    <slot />
+  </body>
+</html>

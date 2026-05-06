@@ -1,0 +1,8 @@
+packages: []
+
+# pnpm 11 defaults strictDepBuilds to true, so the install exits non-zero on any
+# dependency carrying an unreviewed build script. esbuild is Astro's; sharp is
+# pulled in by Astro's image handling. Without this block CI fails at install.
+allowBuilds:
+  esbuild: true
+  sharp: true

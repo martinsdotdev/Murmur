@@ -1,0 +1,54 @@
+---
+/**
+ * Renders a Hugeicons icon as inline SVG, the non-React half of what
+ * <HugeiconsIcon> does inside the app, so the site can use the same icon set
+ * without shipping React to a static page.
+ *
+ * The icon data is React-shaped: attribute names are camelCase and every
+ * element carries a `key`. HTML wants kebab-case, and `key` is React
+ * bookkeeping that must not reach the DOM, so both are translated here.
+ */
+import type { IconSvgElement } from "@hugeicons/react"
+
+interface Props {
+  icon: IconSvgElement
+  size?: number
+  /** Overrides the optically-corrected default below. */
+  strokeWidth?: number
+  class?: string
+}
+
+const { icon, size = 24, strokeWidth, class: className } = Astro.props
+
+/**
+ * Hugeicons is drawn at stroke 1.5 on a 24-unit grid, so shrinking the box
+ * shrinks the stroke with it: at 16px it lands near 1px and the glyph goes
+ * faint beside the text it labels. Scale the stroke back up so every icon
+ * keeps the same 1.5px on screen whatever size it is asked for.
+ */
+const drawnStroke = 1.5
+const stroke =
+  strokeWidth ?? Math.round(((drawnStroke * 24) / size) * 100) / 100
+
+/** Values are string | number: cx/cy/r on <circle> come through numeric. */
+const toHtmlAttrs = (attrs: Readonly<Record<string, string | number>>) =>
+  Object.fromEntries(
+    Object.entries(attrs)
+      .filter(([key]) => key !== "key")
+      .map(([key, value]) => [
+        key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`),
+        key === "strokeWidth" ? stroke : value,
+      ])
+  )
+---
+
+<svg
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  class={className}
+  aria-hidden="true"
+>
+  {icon.map(([Tag, attrs]) => <Tag {...toHtmlAttrs(attrs)} />)}
+</svg>

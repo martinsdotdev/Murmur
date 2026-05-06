@@ -1,0 +1,17 @@
+# CSharpier ignore (gitignore syntax). CSharpier 1.x formats XAML, csproj, props,
+# and targets in addition to .cs - we keep it scoped to C# source only because
+# WinUI XAML and the hand-tuned Murmur.csproj have their own conventions.
+
+*.xaml
+*.csproj
+*.props
+*.targets
+
+# Defensive - never reformat generated WinUI code or designer files.
+**/*.g.cs
+**/*.g.i.cs
+**/*.Designer.cs
+**/GlobalUsings.g.cs
+
+# The web tree has its own toolchain.
+web/

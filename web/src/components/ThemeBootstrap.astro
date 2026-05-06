@@ -1,0 +1,39 @@
+---
+/**
+ * Runs synchronously before paint; shared so it stays byte-identical.
+ *
+ * It also keeps <meta name="theme-color"> honest. A static value would be wrong
+ * for half of visitors, and three separate places write data-theme (this file,
+ * ThemeToggle, and applyTheme in lib/theme.ts), so the meta follows the
+ * attribute rather than each writer. The two colours live on the meta element
+ * itself, because the landing page and the app are not the same surface.
+ */
+---
+
+<script is:inline>
+  ;(function () {
+    const root = document.documentElement
+    const meta = document.querySelector('meta[name="theme-color"]')
+    const paint = () => {
+      const value = meta && meta.dataset[root.dataset.theme || "dark"]
+      if (value) meta.setAttribute("content", value)
+    }
+
+    let resolved = null
+    try {
+      const stored = localStorage.getItem("theme")
+      if (stored === "light" || stored === "dark") resolved = stored
+    } catch {}
+    if (!resolved) {
+      resolved = window.matchMedia("(prefers-color-scheme: light)").matches
+        ? "light"
+        : "dark"
+    }
+
+    root.dataset.theme = resolved
+    paint()
+    new MutationObserver(paint).observe(root, {
+      attributeFilter: ["data-theme"],
+    })
+  })()
+</script>

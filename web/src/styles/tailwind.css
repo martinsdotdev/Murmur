@@ -1,0 +1,255 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* Self-hosted @font-face only. The one stylesheet both surfaces share; see the
+   header of fonts.css for why that is safe. */
+@import "./fonts.css";
+
+/* The site owns the theme, not this stylesheet. ThemeBootstrap.astro resolves
+   localStorage['theme'] to a concrete data-theme before paint; ThemeToggle on
+   the landing page and the /app preferences pane both write that same key.
+   Descendant form, as shadcn ships it: only <html> carries data-theme and it
+   has no classes of its own, so nothing is lost. */
+@custom-variant dark (&:is([data-theme="dark"] *));
+
+@theme inline {
+  /* Murmur's type pairing: Instrument Sans throughout, Source Serif 4 for the
+       wordmark alone. Mirrors web/src/styles/tokens.css. */
+  --font-sans:
+    "Instrument Sans", "Segoe UI Variable Text", "Segoe UI Variable",
+    "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-heading: var(--font-sans);
+
+  /* Brand amber sits alongside shadcn's --primary: --primary is the filled
+       button colour, --color-brand the lighter accent used for active icons,
+       eq bars and highlighted text (Fluent's brandForeground vs brandBackground). */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-track: var(--track);
+  /* neutral-background-4: the highest Fluent layer, used for controls that
+       need to lift off an already-tinted row (the saved-mix delete button). */
+  --color-elevated: var(--elevated);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Murmur's Fluent 2 palette, ported verbatim from
+ * web/src/styles/tokens.css onto shadcn's token names. Hex rather than
+ * oklch so the values are diff-able against the source of truth.
+ *
+ *   neutral ramp   background-1..4  →  background / card / muted / secondary
+ *   brand amber    brandBackground  →  --primary        (filled controls)
+ *                  brandForeground  →  --brand          (accent text + icons)
+ *
+ * Light theme (the ':root' default here) mirrors :root[data-theme='light'].
+ */
+:root {
+  --background: #faf6ee; /* neutral-background-1 */
+  --foreground: #1f1311; /* neutral-foreground-1 */
+  --card: #faf6ee; /* cards read as bordered, not filled */
+  --card-foreground: #1f1311;
+  --popover: #f4eee0; /* neutral-background-2 */
+  --popover-foreground: #1f1311;
+  --primary: #b86d20; /* brand-background */
+  --primary-foreground: #ffffff; /* foreground-on-brand */
+  --secondary: #ece4d2; /* neutral-background-3 */
+  --secondary-foreground: #1f1311;
+  --muted: #ece4d2;
+  --muted-foreground: #8b7e6e; /* neutral-foreground-3 */
+  --accent: #ece4d2;
+  --accent-foreground: #1f1311;
+  --destructive: #a33a25;
+  --border: rgba(33, 18, 14, 0.1); /* neutral-stroke-1 */
+  --input: rgba(33, 18, 14, 0.1);
+  --ring: #b86d20;
+  --brand: #a86018; /* brand-foreground */
+  --brand-hover: #8a4c10;
+  --track: rgba(33, 18, 14, 0.16);
+  --elevated: #d8cdb5; /* neutral-background-4 */
+  --scrollbar: rgba(33, 18, 14, 0.24);
+  --scrollbar-hover: rgba(33, 18, 14, 0.4);
+  --chart-1: #b86d20;
+  --chart-2: #a86018;
+  --chart-3: #8b7e6e;
+  --chart-4: #d8cdb5;
+  --chart-5: #5b4936;
+  --radius: 0.5rem; /* Fluent medium; md≈6px, xl≈11px */
+  --sidebar: #f4eee0; /* neutral-background-side */
+  --sidebar-foreground: #1f1311;
+  --sidebar-primary: #b86d20;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ece4d2;
+  --sidebar-accent-foreground: #1f1311;
+  --sidebar-border: rgba(33, 18, 14, 0.06); /* neutral-stroke-2 */
+  --sidebar-ring: #b86d20;
+}
+
+[data-theme="dark"] {
+  --background: #232017; /* neutral-background-2, the app surface */
+  --foreground: #faf6ee;
+  --card: #232017;
+  --card-foreground: #faf6ee;
+  --popover: #232017;
+  --popover-foreground: #faf6ee;
+  --primary: #d18a2c; /* brand-background */
+  --primary-foreground: #1a0e0a; /* foreground-on-brand */
+  --secondary: #2c281e; /* neutral-background-3 */
+  --secondary-foreground: #faf6ee;
+  --muted: #2c281e;
+  --muted-foreground: #9a9384;
+  --accent: #2c281e;
+  --accent-foreground: #faf6ee;
+  --destructive: #e0785c;
+  --border: rgba(250, 246, 238, 0.1);
+  --input: rgba(250, 246, 238, 0.1);
+  --ring: #f5c375;
+  --brand: #f5c375; /* brand-foreground, the tile amber */
+  --brand-hover: #ffedc8;
+  --track: rgba(250, 246, 238, 0.14);
+  --elevated: #3a3527; /* neutral-background-4 */
+  --scrollbar: rgba(250, 246, 238, 0.22);
+  --scrollbar-hover: rgba(250, 246, 238, 0.38);
+  --chart-1: #f5c375;
+  --chart-2: #d18a2c;
+  --chart-3: #9a9384;
+  --chart-4: #3a3527;
+  --chart-5: #cdc6b8;
+  --sidebar: #16140f; /* neutral-background-side */
+  --sidebar-foreground: #faf6ee;
+  --sidebar-primary: #d18a2c;
+  --sidebar-primary-foreground: #1a0e0a;
+  --sidebar-accent: #2c281e;
+  --sidebar-accent-foreground: #faf6ee;
+  --sidebar-border: rgba(250, 246, 238, 0.06);
+  --sidebar-ring: #f5c375;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/*
+ * Setting scrollbar-width/color makes Chrome ignore ::-webkit-scrollbar, and
+ * its themed path still paints Windows stepper arrows. So the pseudo-elements
+ * drive Chrome/Safari and the standard properties are scoped to browsers
+ * without them (Firefox). Literal rgba rather than color-mix on --foreground:
+ * the minifier's color-mix fallback is the colour at full opacity, which would
+ * paint a solid cream bar on older browsers.
+ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: var(--scrollbar) content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover) content-box;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+  }
+}
+
+/* The selection rail grows from its middle, so the mark reads as arriving on
+   the row rather than sliding in from somewhere off-screen. */
+@keyframes murmur-rail {
+  from {
+    opacity: 0;
+    clip-path: inset(35% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0);
+  }
+}
+
+.mm-rail {
+  animation: murmur-rail 0.18s cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-rail {
+    animation: none;
+  }
+}
+
+@keyframes murmur-eq {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="murmur-eq"] {
+    animation: none !important;
+    transform: scaleY(0.6);
+  }
+}

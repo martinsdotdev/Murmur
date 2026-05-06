@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Murmur.Views.SoundTileControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    AutomationProperties.AutomationId="{x:Bind ViewModel.Id, Mode=OneWay, FallbackValue=''}"
+    AutomationProperties.Name="{x:Bind ViewModel.AccessibleName, Mode=OneWay, FallbackValue=''}"
+    mc:Ignorable="d">
+
+    <Grid
+        x:Name="CardRoot"
+        Padding="12,16,12,12"
+        AutomationProperties.AutomationId="{x:Bind ViewModel.Id, Mode=OneWay, FallbackValue=''}"
+        Background="Transparent"
+        BorderBrush="Transparent"
+        BorderThickness="1"
+        CornerRadius="8"
+        IsTabStop="True"
+        RowSpacing="8"
+        Tapped="CardRoot_Tapped">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Path
+            x:Name="IconShape"
+            Grid.Row="0"
+            Width="32"
+            Height="32"
+            HorizontalAlignment="Center"
+            Data="{x:Bind ViewModel.IconPath, Mode=OneWay, FallbackValue=''}"
+            Stretch="Uniform"
+            Stroke="{ThemeResource TextFillColorSecondaryBrush}"
+            StrokeEndLineCap="Round"
+            StrokeLineJoin="Round"
+            StrokeStartLineCap="Round"
+            StrokeThickness="1.5" />
+
+        <TextBlock
+            x:Name="NameText"
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            MaxLines="1"
+            Style="{StaticResource BodyTextBlockStyle}"
+            Text="{x:Bind ViewModel.DisplayName, Mode=OneWay, FallbackValue=''}"
+            TextTrimming="CharacterEllipsis" />
+
+        <Slider
+            x:Name="VolumeSlider"
+            Grid.Row="2"
+            MinWidth="100"
+            MaxWidth="160"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Center"
+            AutomationProperties.Name="{x:Bind ViewModel.DisplayName, Mode=OneWay, FallbackValue='Volume'}"
+            Maximum="1"
+            Minimum="0"
+            StepFrequency="0.01"
+            ThumbToolTipValueConverter="{StaticResource VolumePercentTooltip}"
+            Value="{x:Bind ViewModel.Volume, Mode=TwoWay}" />
+
+        <!--  Single state group: setting hover background on CardRoot inherits its CornerRadius/bounds, avoiding the "ghost rectangle" of a separate overlay.  -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="CombinedStates">
+                <VisualState x:Name="InactiveDefault">
+                    <VisualState.Setters>
+                        <Setter Target="CardRoot.Opacity" Value="0.7" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="InactiveHover">
+                    <VisualState.Setters>
+                        <Setter Target="CardRoot.Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ActiveDefault">
+                    <VisualState.Setters>
+                        <Setter Target="CardRoot.Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                        <Setter Target="CardRoot.BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                        <Setter Target="IconShape.Stroke" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                        <Setter Target="NameText.FontWeight" Value="SemiBold" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="ActiveHover">
+                    <VisualState.Setters>
+                        <Setter Target="CardRoot.Background" Value="{ThemeResource CardBackgroundFillColorSecondaryBrush}" />
+                        <Setter Target="CardRoot.BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                        <Setter Target="IconShape.Stroke" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                        <Setter Target="NameText.FontWeight" Value="SemiBold" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+    </Grid>
+</UserControl>

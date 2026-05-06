@@ -1,0 +1,116 @@
+import * as React from "react"
+import { useRegisterSW } from "virtual:pwa-register/react"
+
+export interface AudioStatus {
+  /** Sounds already in the worker's audio cache. */
+  cached: number
+  total: number
+}
+
+/**
+ * Service worker registration, offline audio progress, and the install prompt.
+ *
+ * Registration lives in the island rather than a layout script because this is
+ * the only place that has both the update handle and the Toaster. A shared
+ * module imported by two entries would risk two module instances and two
+ * registrations, since Rollup may inline a small module into each.
+ */
+export function usePwa() {
+  const {
+    needRefresh: [needRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({ immediate: true })
+
+  const [audio, setAudio] = React.useState<AudioStatus | null>(null)
+  const [online, setOnline] = React.useState(() => navigator.onLine)
+
+  React.useEffect(() => {
+    const sync = () => setOnline(navigator.onLine)
+    window.addEventListener("online", sync)
+    window.addEventListener("offline", sync)
+    return () => {
+      window.removeEventListener("online", sync)
+      window.removeEventListener("offline", sync)
+    }
+  }, [])
+
+  const [prompt, setPrompt] = React.useState<BeforeInstallPromptEvent | null>(
+    () => window.__murmurInstallPrompt ?? null
+  )
+  const [installed, setInstalled] = React.useState(
+    () =>
+      window.matchMedia("(display-mode: standalone)").matches ||
+      // iOS reports it here and nowhere else.
+      (navigator as { standalone?: boolean }).standalone === true
+  )
+
+  React.useEffect(() => {
+    if (!("serviceWorker" in navigator)) return
+
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as Partial<AudioStatus> & { type?: string }
+      if (data?.type !== "AUDIO_STATUS") return
+      setAudio({ cached: data.cached ?? 0, total: data.total ?? 0 })
+    }
+    navigator.serviceWorker.addEventListener("message", onMessage)
+
+    // Sent on every launch and again on reconnect. A worker killed mid-download
+    // resumes from this; one that already finished skips every file in fourteen
+    // cache lookups. `ready` rather than the register callback, because on a
+    // first install the registration has no active worker yet.
+    const prime = () =>
+      void navigator.serviceWorker.ready.then((registration) => {
+        registration.active?.postMessage({ type: "PRIME_AUDIO" })
+      })
+    prime()
+    window.addEventListener("online", prime)
+
+    return () => {
+      navigator.serviceWorker.removeEventListener("message", onMessage)
+      window.removeEventListener("online", prime)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const onInstallable = () => setPrompt(window.__murmurInstallPrompt ?? null)
+    const onInstalled = () => {
+      window.__murmurInstallPrompt = undefined
+      setPrompt(null)
+      setInstalled(true)
+    }
+    window.addEventListener("murmur:installable", onInstallable)
+    window.addEventListener("appinstalled", onInstalled)
+    return () => {
+      window.removeEventListener("murmur:installable", onInstallable)
+      window.removeEventListener("appinstalled", onInstalled)
+    }
+  }, [])
+
+  /** Asks the worker to fill any gaps in the audio cache now. */
+  const downloadSounds = React.useCallback(() => {
+    if (!("serviceWorker" in navigator)) return
+    void navigator.serviceWorker.ready.then((registration) => {
+      registration.active?.postMessage({ type: "PRIME_AUDIO" })
+    })
+  }, [])
+
+  const install = React.useCallback(async () => {
+    if (!prompt) return
+    // Single-use whatever the user answers, so it is dropped either way rather
+    // than left to fail silently on a second click.
+    window.__murmurInstallPrompt = undefined
+    setPrompt(null)
+    await prompt.prompt()
+  }, [prompt])
+
+  return {
+    needRefresh,
+    updateNow: updateServiceWorker,
+    audio,
+    online,
+    downloadSounds,
+    canInstall: prompt !== null,
+    installed,
+    install,
+  }
+}

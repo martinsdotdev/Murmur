@@ -1,0 +1,16 @@
+---
+/**
+ * beforeinstallprompt fires once, is never replayed, and can land before the
+ * client:only island has parsed. Parking it on window is the only thing that
+ * lets the app still offer an Install button afterwards, and is the sole
+ * reason this is an inline script rather than an effect in MurmurApp.
+ */
+---
+
+<script is:inline>
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault()
+    window.__murmurInstallPrompt = event
+    window.dispatchEvent(new Event("murmur:installable"))
+  })
+</script>

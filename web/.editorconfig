@@ -1,0 +1,4 @@
+# The repo root sets crlf for [*]; Prettier writes lf here, and an editor that
+# follows the root would undo it on every save.
+[*]
+end_of_line = lf

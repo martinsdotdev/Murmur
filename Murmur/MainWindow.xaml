@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="Murmur.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Murmur"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Murmur"
+    mc:Ignorable="d">
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid>
+        <!--  Window-level so they fire regardless of whether focus is on a Page control or a TitleBar control.  -->
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="Space" Invoked="PlayPauseAccelerator_Invoked" />
+            <KeyboardAccelerator Key="R" Modifiers="Control" Invoked="ResetAccelerator_Invoked" />
+            <KeyboardAccelerator Key="I" Modifiers="Control" Invoked="ImportAccelerator_Invoked" />
+            <KeyboardAccelerator Key="G" Modifiers="Control" Invoked="GridViewAccelerator_Invoked" />
+            <KeyboardAccelerator Key="P" Modifiers="Control" Invoked="SettingsAccelerator_Invoked" />
+        </Grid.KeyboardAccelerators>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TitleBar
+            x:Name="AppTitleBar"
+            Title="Murmur"
+            Subtitle="ambient mixer"
+            BackRequested="AppTitleBar_BackRequested"
+            IsBackButtonVisible="{x:Bind RootFrame.CanGoBack, Mode=OneWay}">
+            <TitleBar.IconSource>
+                <ImageIconSource ImageSource="Assets/AppIcon.ico" />
+            </TitleBar.IconSource>
+
+            <TitleBar.LeftHeader>
+                <Button
+                    x:Name="PresetChip"
+                    Height="32"
+                    Margin="8,0,0,0"
+                    Padding="10,0,10,0"
+                    VerticalAlignment="Center"
+                    AutomationProperties.AutomationId="PresetChip"
+                    AutomationProperties.Name="Switch preset"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    ToolTipService.ToolTip="Switch preset">
+                    <StackPanel
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="6">
+                        <TextBlock
+                            MaxWidth="200"
+                            FontSize="14"
+                            Text="{x:Bind ViewModel.ActivePreset.VisibleName, Mode=OneWay, FallbackValue='Default'}"
+                            TextTrimming="CharacterEllipsis" />
+                        <FontIcon FontSize="12" Glyph="&#xE70D;" />
+                    </StackPanel>
+                    <Button.Flyout>
+                        <MenuFlyout x:Name="PresetFlyout" Opening="PresetFlyout_Opening" />
+                    </Button.Flyout>
+                </Button>
+            </TitleBar.LeftHeader>
+
+        </TitleBar>
+
+        <Frame x:Name="RootFrame" Grid.Row="1" />
+
+        <Border
+            x:Name="PlaybackFooter"
+            Grid.Row="2"
+            Padding="12,10,12,14"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
+            <StackPanel
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button
+                    x:Name="VolumeButton"
+                    MinWidth="0"
+                    Width="36"
+                    Height="36"
+                    Padding="0"
+                    VerticalAlignment="Center"
+                    AutomationProperties.AutomationId="VolumeButton"
+                    AutomationProperties.Name="Master volume"
+                    CornerRadius="18"
+                    ToolTipService.ToolTip="Master volume">
+                    <FontIcon FontSize="14" Glyph="&#xE767;" />
+                    <Button.Flyout>
+                        <Flyout Placement="Top">
+                            <StackPanel
+                                Padding="4"
+                                Orientation="Horizontal"
+                                Spacing="10">
+                                <FontIcon
+                                    VerticalAlignment="Center"
+                                    FontSize="14"
+                                    Glyph="&#xE767;" />
+                                <Slider
+                                    x:Name="MasterVolumeSlider"
+                                    Width="180"
+                                    VerticalAlignment="Center"
+                                    AutomationProperties.AutomationId="MasterVolumeSlider"
+                                    AutomationProperties.Name="Master volume"
+                                    IsEnabled="{x:Bind ViewModel.IsReady, Mode=OneWay}"
+                                    IsThumbToolTipEnabled="True"
+                                    Maximum="1"
+                                    Minimum="0"
+                                    StepFrequency="0.01"
+                                    ThumbToolTipValueConverter="{StaticResource VolumePercentTooltip}"
+                                    Value="{x:Bind ViewModel.MasterVolume, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+
+                <Button
+                    x:Name="PlayPauseButton"
+                    MinWidth="0"
+                    Width="48"
+                    Height="48"
+                    Padding="0"
+                    AutomationProperties.AutomationId="PlayPauseButton"
+                    AutomationProperties.Name="Play or pause the mix"
+                    Command="{x:Bind ViewModel.PlayPauseCommand}"
+                    CornerRadius="24"
+                    IsEnabled="{x:Bind ViewModel.IsReady, Mode=OneWay}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    TabIndex="0"
+                    ToolTipService.ToolTip="Play or pause">
+                    <FontIcon FontSize="16" Glyph="{x:Bind ViewModel.PlayPauseGlyph, Mode=OneWay, FallbackValue='&#xE768;'}" />
+                </Button>
+
+                <Button
+                    x:Name="OverflowButton"
+                    MinWidth="0"
+                    Width="36"
+                    Height="36"
+                    Padding="0"
+                    VerticalAlignment="Center"
+                    AutomationProperties.AutomationId="OverflowButton"
+                    AutomationProperties.Name="More actions"
+                    CornerRadius="18"
+                    ToolTipService.ToolTip="More actions">
+                    <FontIcon FontSize="14" Glyph="&#xE712;" />
+                    <Button.Flyout>
+                        <MenuFlyout Placement="Top">
+                            <MenuFlyoutItem Click="ResetMix_Click" Text="Reset mix">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE72C;" />
+                                </MenuFlyoutItem.Icon>
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator IsEnabled="False" Key="R" Modifiers="Control" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Click="Import_Click" Text="Import .ogg…">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8E5;" />
+                                </MenuFlyoutItem.Icon>
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator IsEnabled="False" Key="I" Modifiers="Control" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem
+                                Click="GridViewToggle_Click"
+                                Text="{x:Bind ViewModel.ViewToggleAccessibleName, Mode=OneWay}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="{x:Bind ViewModel.ViewToggleGlyph, Mode=OneWay}" />
+                                </MenuFlyoutItem.Icon>
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator IsEnabled="False" Key="G" Modifiers="Control" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Click="Settings_Click" Text="Preferences">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE713;" />
+                                </MenuFlyoutItem.Icon>
+                                <MenuFlyoutItem.KeyboardAccelerators>
+                                    <KeyboardAccelerator IsEnabled="False" Key="P" Modifiers="Control" />
+                                </MenuFlyoutItem.KeyboardAccelerators>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,186 @@
+---
+import { repoUrl, releasesUrl, latestReleaseApi } from "../data/site.ts"
+import Icon from "./Icon.astro"
+import { Download04Icon } from "@hugeicons/core-free-icons"
+
+interface Release {
+  tag_name: string
+  html_url: string
+}
+
+let release: Release | null = null
+try {
+  const res = await fetch(latestReleaseApi, {
+    headers: { Accept: "application/vnd.github+json" },
+  })
+  if (res.ok) release = (await res.json()) as Release
+} catch {
+  // Offline build / API rate limited, fall through to placeholder.
+}
+---
+
+<section class="download" id="download" aria-labelledby="download-heading">
+  <div class="download-grid container">
+    <div class="download-pitch">
+      <h2 id="download-heading" class="section-h2">Get Murmur</h2>
+      <p class="download-reqs">
+        Runs on Windows 10 (build 19041 or later) and Windows 11, on x64 and
+        ARM64.
+      </p>
+      <a
+        href={release?.html_url ?? releasesUrl}
+        class="btn btn-primary btn-large"
+        target="_blank"
+        rel="noopener"
+      >
+        <Icon icon={Download04Icon} size={17} />
+        Latest release
+      </a>
+      {
+        !release && (
+          <p class="download-soon">
+            No build published yet? Watch the
+            <a href={repoUrl} target="_blank" rel="noopener">
+              GitHub repo
+            </a>{" "}
+            to hear when v1.0.0 lands.
+          </p>
+        )
+      }
+    </div>
+
+    <div class="cert-card">
+      <p class="cert-lead">
+        The first install asks you to trust a certificate. Updates after that
+        are a double-click.
+      </p>
+      <ol class="cert-steps">
+        <li>
+          <strong>Download the certificate</strong>
+          <p>
+            Grab <code>Murmur.cer</code> from the release you're installing.
+          </p>
+        </li>
+        <li>
+          <strong>Trust it once</strong>
+          <p>
+            Install it to Local Machine → Trusted People. Windows asks for admin
+            approval.
+          </p>
+        </li>
+        <li>
+          <strong>Run the bundle</strong>
+          <p>Double-click the <code>.msixbundle</code>.</p>
+        </li>
+      </ol>
+      <p class="cert-note">
+        Self-signing keeps Murmur free and independent; a Microsoft Store
+        release may remove this step later.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .download {
+    border-top: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+  }
+
+  .download-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 56px;
+    align-items: start;
+  }
+
+  @media (max-width: 960px) {
+    .download-grid {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+  }
+
+  .download-pitch h2 {
+    margin-bottom: 14px;
+  }
+
+  .download-reqs {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-neutral-foreground-2);
+    max-width: 40ch;
+    margin-bottom: 26px;
+  }
+
+  .download-soon {
+    font-size: 12.5px;
+    color: var(--color-neutral-foreground-3);
+    margin-top: var(--space-mn);
+  }
+
+  .cert-card {
+    background: var(--color-neutral-background-2);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    border-radius: 14px;
+    padding: 26px 28px;
+  }
+
+  .cert-lead {
+    font-size: 14.5px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-neutral-foreground-1);
+    margin-bottom: var(--space-l);
+    max-width: none;
+  }
+
+  /* The list numbers itself. What used to sit here were digits typed by hand
+     into an ordered list and then marked aria-hidden, because they said
+     nothing the <ol> had not already said, and they would have gone stale the
+     first time a step was inserted. The count still matters, since the last
+     step refers back to the first two, so it stays as plain type rather than
+     as badges. */
+  .cert-steps {
+    padding-left: 1.6em;
+  }
+
+  .cert-steps li::marker {
+    color: var(--color-neutral-foreground-3);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cert-steps li + li {
+    margin-top: var(--space-mn);
+  }
+
+  .cert-steps strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-neutral-foreground-1);
+    margin-bottom: 3px;
+  }
+
+  .cert-steps p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--color-neutral-foreground-2);
+  }
+
+  .cert-steps code {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-caption1-size);
+    background: var(--color-neutral-background-3);
+    padding: 1px 5px;
+    border-radius: var(--border-radius-small);
+  }
+
+  .cert-note {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--color-neutral-foreground-3);
+    margin-top: var(--space-l);
+    padding-top: var(--space-mn);
+    border-top: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+  }
+</style>
