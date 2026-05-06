@@ -1,0 +1,193 @@
+/*
+ * Fluent 2 design tokens for the Murmur website.
+ *
+ * Maps the canonical Fluent 2 web spec (fluent2.microsoft.design) onto CSS
+ * custom properties. The brand's warm-amber accent inhabits Fluent 2's
+ * "brand" color slot; everything else (neutrals, text, strokes, elevation)
+ * follows Fluent 2's neutral-grey ramp.
+ *
+ * Naming mirrors @fluentui/tokens (colorNeutralBackground1, colorBrandBackground,
+ * shadow8, etc.) so the mental model maps to FluentUI/WinUI documentation.
+ */
+
+:root {
+  /* === Brand (accent), Murmur's coffee/amber palette ============== */
+  --color-brand-foreground:        #f5c375;  /* tile-amber: links, accent text */
+  --color-brand-foreground-hover:  #ffedc8;  /* tile-cream */
+  --color-brand-background:        #d18a2c;  /* button rest */
+  --color-brand-background-hover:  #e09a3a;  /* button hover */
+  --color-brand-background-pressed:#a85820;  /* button pressed */
+  --color-brand-stroke-1:          #f5c375;
+  --color-brand-stroke-2:          rgba(245, 195, 117, 0.32);
+
+  /* === Dark theme neutrals (default) ============================== */
+  /* Layer ramp: layer1 = base, layer2 = elevated card, layer3 = highest */
+  --color-neutral-background-1:    #1a1815;  /* base body, slightly tinted from icon's #21120E */
+  --color-neutral-background-2:    #232017;  /* layer 2, main cards */
+  --color-neutral-background-3:    #2c281e;  /* layer 3, elevated cards, hover */
+  --color-neutral-background-4:    #3a3527;  /* layer 4, highest elevation */
+
+  /* Subtle backgrounds for buttons/chips */
+  --color-subtle-background:               transparent;
+  --color-subtle-background-hover:         rgba(250, 246, 238, 0.06);
+  --color-subtle-background-pressed:       rgba(250, 246, 238, 0.10);
+  --color-subtle-background-selected:      rgba(245, 195, 117, 0.08);
+
+  /* Text */
+  --color-neutral-foreground-1:    #faf6ee;  /* primary text */
+  --color-neutral-foreground-2:    #cdc6b8;  /* secondary text */
+  --color-neutral-foreground-3:    #9a9384;  /* tertiary / hints */
+  --color-neutral-foreground-4:    #706a5d;  /* disabled */
+  --color-neutral-foreground-on-brand: #1a0e0a;  /* text on accent button */
+
+  /* Strokes & dividers */
+  --color-neutral-stroke-1:        rgba(250, 246, 238, 0.10);  /* control border rest */
+  --color-neutral-stroke-2:        rgba(250, 246, 238, 0.06);  /* divider */
+  --color-neutral-stroke-accessible: rgba(250, 246, 238, 0.55);
+  --color-neutral-stroke-accessible-hover: rgba(250, 246, 238, 0.70);
+
+  /* Acrylic / Mica tint colors (used with backdrop-filter) */
+  --acrylic-tint:          rgba(26, 24, 21, 0.65);
+  --acrylic-tint-strong:   rgba(26, 24, 21, 0.85);
+  --mica-tint:             rgba(26, 24, 21, 0.92);
+
+  /* === Type ramp (Fluent 2 web) =================================== */
+  --font-caption2-size:    10px;  --font-caption2-line:    14px;
+  --font-caption1-size:    12px;  --font-caption1-line:    16px;
+  --font-body1-size:       14px;  --font-body1-line:       20px;
+  --font-subtitle2-size:   16px;  --font-subtitle2-line:   22px;
+  --font-subtitle1-size:   20px;  --font-subtitle1-line:   26px;
+  --font-title3-size:      24px;  --font-title3-line:      32px;
+  --font-title2-size:      28px;  --font-title2-line:      36px;
+  --font-title1-size:      32px;  --font-title1-line:      40px;
+  --font-largetitle-size:  40px;  --font-largetitle-line:  52px;
+  --font-display-size:     68px;  --font-display-line:     92px;
+
+  --font-weight-regular:  400;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  /* Type families. Segoe UI Variable on Windows; native fallback elsewhere. */
+  --font-family-base: 'Segoe UI Variable Text', 'Segoe UI Variable',
+                      'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
+                      'Helvetica Neue', Arial, sans-serif;
+  --font-family-display: 'Segoe UI Variable Display', 'Segoe UI Variable',
+                         'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
+                         'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'Cascadia Mono', 'Cascadia Code', Consolas,
+                      ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* === Corner radii (Fluent 2) ==================================== */
+  --border-radius-none:     0;
+  --border-radius-small:    4px;
+  --border-radius-medium:   8px;
+  --border-radius-large:    12px;
+  --border-radius-xlarge:   16px;
+  --border-radius-circular: 9999px;
+
+  /* === Stroke widths ============================================= */
+  --stroke-width-thin:    1px;
+  --stroke-width-thick:   2px;
+  --stroke-width-thicker: 3px;
+
+  /* === Spacing (Fluent 2 grid), XS=4 base ======================== */
+  --space-xxs:  2px;
+  --space-xs:   4px;
+  --space-s:    8px;
+  --space-sn:   10px;
+  --space-m:    12px;
+  --space-mn:   16px;
+  --space-l:    20px;
+  --space-xl:   24px;
+  --space-xxl:  32px;
+  --space-xxxl: 48px;
+  --space-4xl:  64px;
+  --space-5xl:  96px;
+
+  /* === Elevation (Fluent 2 shadow tokens, dark-theme variant) ====== */
+  --shadow-2:  0 1px  2px rgba(0,0,0,0.28), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-4:  0 2px  4px rgba(0,0,0,0.28), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-8:  0 4px  8px rgba(0,0,0,0.28), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-16: 0 8px 16px rgba(0,0,0,0.28), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-28: 0 14px 28px rgba(0,0,0,0.32), 0 0 8px rgba(0,0,0,0.20);
+  --shadow-64: 0 32px 64px rgba(0,0,0,0.32), 0 0 8px rgba(0,0,0,0.20);
+  --shadow-brand-8:  0 4px 8px rgba(168,88,32,0.35), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-brand-16: 0 8px 16px rgba(168,88,32,0.35), 0 0 2px rgba(0,0,0,0.12);
+
+  /* === Motion (Fluent 2) =========================================== */
+  --curve-decelerate-max: cubic-bezier(0,    0,    0,    1);
+  --curve-decelerate-mid: cubic-bezier(0.10, 0.90, 0.20, 1);
+  --curve-decelerate-min: cubic-bezier(0.33, 0.00, 0.10, 1);
+  --curve-accelerate-max: cubic-bezier(1,    0,    1,    1);
+  --curve-accelerate-mid: cubic-bezier(0.70, 0.00, 1.00, 0.5);
+  --curve-accelerate-min: cubic-bezier(0.80, 0.00, 0.78, 1);
+  --curve-easy-ease:      cubic-bezier(0.33, 0.00, 0.67, 1);
+  --curve-linear:         linear;
+
+  --duration-ultra-fast:    50ms;
+  --duration-faster:        100ms;
+  --duration-fast:          150ms;
+  --duration-normal:        200ms;
+  --duration-gentle:        250ms;
+  --duration-slow:          300ms;
+  --duration-slower:        400ms;
+  --duration-ultra-slow:    500ms;
+
+  /* === Focus (Fluent 2 dual-ring) ================================= */
+  --focus-stroke-outer: var(--color-neutral-foreground-1);
+  --focus-stroke-inner: var(--color-neutral-background-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-ultra-fast:  0ms;
+    --duration-faster:      0ms;
+    --duration-fast:        0ms;
+    --duration-normal:      0ms;
+    --duration-gentle:      0ms;
+    --duration-slow:        0ms;
+    --duration-slower:      0ms;
+    --duration-ultra-slow:  0ms;
+  }
+}
+
+/* === Light theme inverts the neutral ramp ========================== */
+:root[data-theme='light'] {
+  --color-neutral-background-1: #faf6ee;
+  --color-neutral-background-2: #f4eee0;
+  --color-neutral-background-3: #ece4d2;
+  --color-neutral-background-4: #d8cdb5;
+
+  --color-subtle-background-hover:    rgba(33, 18, 14, 0.04);
+  --color-subtle-background-pressed:  rgba(33, 18, 14, 0.08);
+  --color-subtle-background-selected: rgba(168, 88, 32, 0.12);
+
+  --color-neutral-foreground-1: #1f1311;
+  --color-neutral-foreground-2: #5b4936;
+  --color-neutral-foreground-3: #8b7e6e;
+  --color-neutral-foreground-4: #b3a896;
+
+  --color-neutral-stroke-1: rgba(33, 18, 14, 0.10);
+  --color-neutral-stroke-2: rgba(33, 18, 14, 0.06);
+  --color-neutral-stroke-accessible:       rgba(33, 18, 14, 0.55);
+  --color-neutral-stroke-accessible-hover: rgba(33, 18, 14, 0.70);
+
+  --color-brand-background:         #b86d20;
+  --color-brand-background-hover:   #c97c2d;
+  --color-brand-background-pressed: #944f12;
+  --color-neutral-foreground-on-brand: #ffffff;
+
+  --acrylic-tint:        rgba(250, 246, 238, 0.65);
+  --acrylic-tint-strong: rgba(250, 246, 238, 0.85);
+  --mica-tint:           rgba(250, 246, 238, 0.92);
+
+  --shadow-2:  0 1px  2px rgba(0,0,0,0.14), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-4:  0 2px  4px rgba(0,0,0,0.14), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-8:  0 4px  8px rgba(0,0,0,0.14), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-16: 0 8px 16px rgba(0,0,0,0.14), 0 0 2px rgba(0,0,0,0.12);
+  --shadow-28: 0 14px 28px rgba(0,0,0,0.24), 0 0 8px rgba(0,0,0,0.20);
+  --shadow-64: 0 32px 64px rgba(0,0,0,0.24), 0 0 8px rgba(0,0,0,0.20);
+
+  --focus-stroke-outer: var(--color-neutral-foreground-1);
+  --focus-stroke-inner: var(--color-neutral-background-1);
+}

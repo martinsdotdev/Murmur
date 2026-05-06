@@ -1,0 +1,514 @@
+---
+import { sounds, categoryLabel, type SoundCategory } from '../data/sounds.ts';
+import SoundIcon from './SoundIcon.astro';
+
+const categories: SoundCategory[] = ['nature', 'urban', 'generated'];
+---
+
+<section class="demo" id="try-it" aria-labelledby="demo-heading">
+  <div class="container">
+    <header class="demo-header">
+      <h2 id="demo-heading" class="fluent-largetitle">Try it</h2>
+      <p class="fluent-subtitle1 demo-sub">Drag a slider to start. Share copies your mix as a link.</p>
+    </header>
+
+    {/* Acrylic command bar, Fluent 2 transient surface treatment.
+        Sticks just below the page nav for always-on master controls. */}
+    <div class="demo-bar" data-mixer-bar data-playing="true">
+      <button
+        type="button"
+        class="play-btn"
+        data-mixer-play
+        aria-label="Pause all sounds"
+        aria-pressed="true"
+      >
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M5 3v18l16-9z"></path>
+        </svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M6 4h4v16H6zM14 4h4v16h-4z"></path>
+        </svg>
+      </button>
+
+      <div class="master">
+        <label for="master-vol" class="master-label fluent-caption1-strong">Master</label>
+        <input
+          id="master-vol"
+          type="range"
+          min="0"
+          max="100"
+          value="75"
+          step="1"
+          data-mixer-master
+          aria-label="Master volume"
+        />
+      </div>
+
+      <div class="bar-actions">
+        <span class="active-count fluent-caption1" data-active-count>0 active</span>
+        <button type="button" class="btn btn-subtle" data-mixer-reset>Reset</button>
+        <button type="button" class="btn btn-secondary bar-btn-share" data-mixer-share>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8 M16 6l-4-4-4 4 M12 2v13"></path>
+          </svg>
+          <span>Share mix</span>
+        </button>
+      </div>
+    </div>
+
+    {categories.map((cat) => (
+      <div class="cat-block">
+        <h3 class="cat-title fluent-caption1-strong">{categoryLabel[cat]}</h3>
+        <div class="card-grid">
+          {sounds.filter((s) => s.category === cat).map((s) => (
+            <article
+              class={`pad pad--${s.category}`}
+              data-sound={s.id}
+              data-loaded="false"
+              data-active="false"
+            >
+              <button
+                type="button"
+                class="pad-icon"
+                data-pad-toggle
+                aria-label={`Toggle ${s.name}`}
+                aria-pressed="false"
+              >
+                <SoundIcon path={s.iconPath} size={20} />
+              </button>
+              <h4 class="pad-name fluent-body1-strong">{s.name}</h4>
+              <div class="pad-slider">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="0"
+                  step="1"
+                  aria-label={`${s.name} volume`}
+                />
+                <span class="pad-percent fluent-caption1" aria-hidden="true">0%</span>
+              </div>
+              <span class="pad-loading fluent-caption1" aria-live="polite">loading…</span>
+            </article>
+          ))}
+        </div>
+      </div>
+    ))}
+
+    <p class="share-toast fluent-body1" data-share-toast role="status">Link copied</p>
+  </div>
+</section>
+
+<style>
+  .demo {
+    position: relative;
+  }
+
+  .demo-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    margin-bottom: var(--space-xxxl);
+    max-width: 56ch;
+  }
+
+  .demo-sub {
+    color: var(--color-neutral-foreground-2);
+    font-weight: var(--font-weight-regular);
+  }
+
+  /* Acrylic sticky bar */
+  .demo-bar {
+    position: sticky;
+    top: 56px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: var(--space-l);
+    padding: var(--space-s) var(--space-mn);
+    background: var(--color-neutral-background-2);
+    background: var(--acrylic-tint-strong);
+    backdrop-filter: blur(40px) saturate(125%);
+    -webkit-backdrop-filter: blur(40px) saturate(125%);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    border-radius: var(--border-radius-medium);
+    margin-bottom: var(--space-xxxl);
+    box-shadow: var(--shadow-16);
+    min-height: 56px;
+  }
+
+  /* Round AccentButton, Fluent 2 primary CTA in compact size */
+  .play-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--border-radius-circular);
+    background-color: var(--color-brand-background);
+    color: var(--color-neutral-foreground-on-brand);
+    display: grid;
+    place-items: center;
+    transition:
+      background-color var(--duration-faster) var(--curve-easy-ease);
+    flex-shrink: 0;
+  }
+  .play-btn:hover  { background-color: var(--color-brand-background-hover); }
+  .play-btn:active { background-color: var(--color-brand-background-pressed); }
+  .play-btn svg { width: 14px; height: 14px; grid-area: 1 / 1; transition: opacity var(--duration-faster) var(--curve-easy-ease); }
+  .play-btn .icon-pause { opacity: 0; }
+  [data-mixer-bar][data-playing='true'] .icon-play { opacity: 0; }
+  [data-mixer-bar][data-playing='true'] .icon-pause { opacity: 1; }
+
+  .master {
+    flex: 1 1 240px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    min-width: 0;
+  }
+  .master-label {
+    color: var(--color-neutral-foreground-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .master input[type='range'] { flex: 1; }
+
+  .bar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    flex-shrink: 0;
+  }
+
+  .active-count {
+    color: var(--color-neutral-foreground-3);
+  }
+
+  /* Override .btn height for the bar's compact density */
+  .demo-bar .btn { height: 32px; padding: 0 var(--space-m); font-size: var(--font-body1-size); }
+  .bar-btn-share { color: var(--color-brand-foreground); border-color: var(--color-brand-stroke-2); }
+  .bar-btn-share:hover { color: var(--color-brand-foreground-hover); border-color: var(--color-brand-foreground); }
+
+  /* Category sections */
+  .cat-block { margin-bottom: var(--space-xxxl); }
+  .cat-title {
+    color: var(--color-neutral-foreground-3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: var(--space-mn);
+    padding-bottom: var(--space-s);
+    border-bottom: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-mn);
+  }
+
+  /*
+   * Fluent 2 pad: layer2 background, $shadow4 elevation. Active pads gain
+   * the brand stroke + a subtle brand-tinted background, no glowing halos
+   * or breathing animations (Fluent reserves motion for transitions only).
+   */
+  .pad {
+    position: relative;
+    background-color: var(--color-neutral-background-2);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    border-radius: var(--border-radius-medium);
+    padding: var(--space-l);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-m);
+    box-shadow: var(--shadow-4);
+    transition:
+      background-color var(--duration-fast) var(--curve-easy-ease),
+      border-color var(--duration-fast) var(--curve-easy-ease),
+      box-shadow var(--duration-fast) var(--curve-easy-ease),
+      transform var(--duration-fast) var(--curve-decelerate-mid);
+  }
+
+  .pad:hover {
+    background-color: var(--color-neutral-background-3);
+    box-shadow: var(--shadow-8);
+    transform: translateY(-2px);
+  }
+
+  .pad[data-active='true'] {
+    background-color: var(--color-subtle-background-selected);
+    border-color: var(--color-brand-stroke-2);
+    box-shadow: var(--shadow-brand-8);
+  }
+
+  /* Pad icon = real <button> for keyboard access */
+  .pad-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--border-radius-medium);
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: var(--color-neutral-foreground-2);
+    background-color: var(--color-neutral-background-1);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) var(--curve-easy-ease),
+      background-color var(--duration-fast) var(--curve-easy-ease),
+      border-color var(--duration-fast) var(--curve-easy-ease);
+  }
+  .pad-icon:hover {
+    background-color: var(--color-subtle-background-hover);
+    color: var(--color-neutral-foreground-1);
+  }
+  .pad[data-active='true'] .pad-icon {
+    color: var(--color-brand-foreground);
+    background-color: var(--color-subtle-background-selected);
+    border-color: var(--color-brand-stroke-2);
+  }
+
+  .pad-name {
+    color: var(--color-neutral-foreground-1);
+  }
+
+  .pad-slider {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-s);
+    width: 100%;
+  }
+
+  .pad-percent {
+    color: var(--color-neutral-foreground-3);
+    min-height: 1em;
+    transition: color var(--duration-faster) var(--curve-easy-ease);
+  }
+  .pad[data-active='true'] .pad-percent {
+    color: var(--color-brand-foreground);
+  }
+
+  .pad-loading {
+    position: absolute;
+    bottom: var(--space-m);
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-neutral-foreground-3);
+    opacity: 0;
+    transition: opacity var(--duration-faster) var(--curve-easy-ease);
+    pointer-events: none;
+  }
+  .pad[data-loaded='loading'] .pad-loading { opacity: 1; }
+  .pad[data-loaded='loading'] .pad-percent { opacity: 0; }
+
+  /*
+   * Fluent 2 slider, track is a thin neutral bar; thumb is a brand-tinted
+   * circle. Hover/focus enlarges the thumb subtly per Fluent input states.
+   */
+  input[type='range'] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--color-neutral-background-4);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+    border-radius: var(--border-radius-circular);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--color-brand-background);
+    border-radius: var(--border-radius-circular);
+    border: 2px solid var(--color-neutral-background-1);
+    box-shadow: var(--shadow-2);
+    transition:
+      transform var(--duration-faster) var(--curve-easy-ease),
+      background-color var(--duration-faster) var(--curve-easy-ease);
+  }
+  input[type='range']::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    background-color: var(--color-brand-background-hover);
+  }
+  input[type='range']::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--color-brand-background);
+    border: 2px solid var(--color-neutral-background-1);
+    border-radius: var(--border-radius-circular);
+    box-shadow: var(--shadow-2);
+  }
+  input[type='range']:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--focus-stroke-outer);
+    outline-offset: 2px;
+  }
+  input[type='range']:focus-visible::-moz-range-thumb {
+    outline: 2px solid var(--focus-stroke-outer);
+    outline-offset: 2px;
+  }
+
+  /* Toast, Fluent 2 InfoBar pattern */
+  .share-toast {
+    position: fixed;
+    bottom: var(--space-xl);
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: var(--space-m) var(--space-l);
+    background: var(--color-neutral-background-3);
+    color: var(--color-neutral-foreground-1);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-28);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-fast) var(--curve-easy-ease),
+      transform var(--duration-fast) var(--curve-decelerate-mid);
+  }
+  .share-toast[data-show='true'] {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 720px) {
+    .demo-bar {
+      flex-wrap: wrap;
+      gap: var(--space-m);
+      top: 56px;
+    }
+    .master { flex: 1 1 100%; order: 2; }
+    .bar-actions { order: 1; flex: 1; justify-content: flex-end; }
+    .active-count { display: none; }
+    .bar-btn-share span { display: none; }
+  }
+</style>
+
+<script>
+  import { Mixer, encodeMix, decodeMix } from '../scripts/mixer';
+
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const mixer = new Mixer((id) => `${base}/sounds/${id}.ogg`);
+
+  const bar = document.querySelector<HTMLElement>('[data-mixer-bar]')!;
+  const playBtn = document.querySelector<HTMLButtonElement>('[data-mixer-play]')!;
+  const masterSlider = document.querySelector<HTMLInputElement>('[data-mixer-master]')!;
+  const resetBtn = document.querySelector<HTMLButtonElement>('[data-mixer-reset]')!;
+  const shareBtn = document.querySelector<HTMLButtonElement>('[data-mixer-share]')!;
+  const activeCount = document.querySelector<HTMLElement>('[data-active-count]')!;
+  const toast = document.querySelector<HTMLElement>('[data-share-toast]')!;
+  const pads = Array.from(document.querySelectorAll<HTMLElement>('.pad'));
+
+  const padApply = new Map<string, (value: number) => Promise<void>>();
+
+  for (const pad of pads) {
+    const id = pad.dataset.sound!;
+    const slider = pad.querySelector<HTMLInputElement>('input[type=range]')!;
+    const percent = pad.querySelector<HTMLElement>('.pad-percent')!;
+    const toggle = pad.querySelector<HTMLButtonElement>('[data-pad-toggle]')!;
+
+    const apply = async (value: number) => {
+      const v = value / 100;
+      const wasZero = pad.dataset.active !== 'true';
+      pad.dataset.active = v > 0 ? 'true' : 'false';
+      toggle.setAttribute('aria-pressed', v > 0 ? 'true' : 'false');
+      percent.textContent = v > 0 ? `${Math.round(value)}%` : '';
+      if (v > 0 && wasZero && pad.dataset.loaded === 'false') {
+        pad.dataset.loaded = 'loading';
+      }
+      try {
+        await mixer.setVolume(id, v);
+        if (v > 0) pad.dataset.loaded = 'true';
+      } catch (err) {
+        console.error('mixer setVolume failed', err);
+        pad.dataset.loaded = 'false';
+        pad.dataset.active = 'false';
+        toggle.setAttribute('aria-pressed', 'false');
+        percent.textContent = '';
+        slider.value = '0';
+      }
+      updateActiveCount();
+    };
+    padApply.set(id, apply);
+
+    slider.addEventListener('input', () => void apply(Number(slider.value)));
+    toggle.addEventListener('click', () => {
+      const next = mixer.getVolume(id) > 0 ? 0 : 60;
+      slider.value = String(next);
+      void apply(next);
+    });
+  }
+
+  playBtn.addEventListener('click', () => {
+    const next = !mixer.isPlaying;
+    mixer.setPlaying(next);
+    bar.dataset.playing = next ? 'true' : 'false';
+    playBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+    playBtn.setAttribute('aria-label', next ? 'Pause all sounds' : 'Play all sounds');
+  });
+
+  masterSlider.addEventListener('input', () => {
+    mixer.setMasterVolume(Number(masterSlider.value) / 100);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    for (const apply of padApply.values()) void apply(0);
+    for (const pad of pads) {
+      const slider = pad.querySelector<HTMLInputElement>('input[type=range]')!;
+      slider.value = '0';
+    }
+  });
+
+  let toastTimer: number | undefined;
+  shareBtn.addEventListener('click', async () => {
+    const mix = mixer.exportMix();
+    const fragment = encodeMix(mix);
+    const url = new URL(window.location.href);
+    url.hash = fragment ? `mix=${fragment}` : '';
+    history.replaceState(null, '', url.toString());
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      toast.textContent = fragment ? 'Link copied' : 'Empty mix';
+    } catch {
+      toast.textContent = 'Copy failed, link is in the address bar';
+    }
+    toast.dataset.show = 'true';
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.dataset.show = 'false';
+    }, 2500);
+  });
+
+  function updateActiveCount() {
+    const n = Array.from(document.querySelectorAll('.pad[data-active="true"]')).length;
+    activeCount.textContent = n === 0 ? '0 active' : n === 1 ? '1 active' : `${n} active`;
+  }
+
+  // Restore mix from URL hash on load. Slider visuals get set immediately;
+  // playback waits for the first user gesture (browsers block autoplay until then).
+  const hash = window.location.hash.replace(/^#/, '');
+  const mixParam = new URLSearchParams(hash).get('mix');
+  if (mixParam) {
+    const restored = decodeMix(mixParam);
+    for (const [id, vol] of Object.entries(restored)) {
+      const pad = pads.find((p) => p.dataset.sound === id);
+      if (!pad) continue;
+      const slider = pad.querySelector<HTMLInputElement>('input[type=range]')!;
+      slider.value = String(Math.round(vol * 100));
+    }
+
+    const start = () => {
+      window.removeEventListener('pointerdown', start);
+      window.removeEventListener('keydown', start);
+      for (const [id, vol] of Object.entries(restored)) {
+        const apply = padApply.get(id);
+        if (apply) void apply(Math.round(vol * 100));
+      }
+    };
+    window.addEventListener('pointerdown', start);
+    window.addEventListener('keydown', start);
+  }
+</script>

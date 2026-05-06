@@ -1,0 +1,73 @@
+---
+/**
+ * Fluent 2 SubtleButton that toggles between light/dark themes. Reads/writes
+ * localStorage('theme') and sets data-theme on <html>. The bootstrap script in
+ * BaseLayout runs before paint so there is no flash of wrong theme.
+ */
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="theme-toggle"
+  aria-label="Toggle color theme"
+  title="Toggle color theme"
+>
+  <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2 M12 20v2 M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M2 12h2 M20 12h2 M6.34 17.66l-1.41 1.41 M19.07 4.93l-1.41 1.41"></path>
+  </svg>
+  <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-small);
+    display: inline-grid;
+    place-items: center;
+    color: var(--color-neutral-foreground-2);
+    background-color: var(--color-subtle-background);
+    transition:
+      background-color var(--duration-faster) var(--curve-easy-ease),
+      color var(--duration-faster) var(--curve-easy-ease);
+    position: relative;
+  }
+  .theme-toggle:hover {
+    background-color: var(--color-subtle-background-hover);
+    color: var(--color-neutral-foreground-1);
+  }
+  .theme-toggle:active {
+    background-color: var(--color-subtle-background-pressed);
+  }
+  .theme-toggle svg {
+    width: 16px;
+    height: 16px;
+    grid-area: 1 / 1;
+    transition: opacity var(--duration-faster) var(--curve-easy-ease);
+  }
+  :root[data-theme='light'] .theme-toggle .sun,
+  :root:not([data-theme='light']) .theme-toggle .moon {
+    opacity: 0;
+  }
+  :root[data-theme='light'] .theme-toggle .moon,
+  :root:not([data-theme='light']) .theme-toggle .sun {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  btn?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* private browsing, no-op */
+    }
+  });
+</script>

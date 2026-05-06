@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10 2v4"/>
+  <path d="M14 4v2"/>
+  <path d="M6 4v2"/>
+  <path d="M3.941 8C2.87 8 2 8.87 2 9.941V15a8 8 0 0 0 15.911 1.197h.738a3.349 3.349 0 0 0 0-6.697h-.7c-.2-.86-.97-1.5-1.89-1.5H3.94Z"/>
+</svg>

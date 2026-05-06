@@ -1,0 +1,227 @@
+---
+import { sounds } from '../data/sounds.ts';
+import BrandLogo from './BrandLogo.astro';
+import { repoUrl, releasesUrl, issuesUrl, blanketUrl } from '../data/site.ts';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="footer-mark" aria-label="Murmur">
+        <BrandLogo size={36} />
+        <span class="footer-mark-text">Murmur</span>
+      </a>
+      <p class="fluent-body1 footer-blurb">
+        An ambient sound mixer for Windows. Born from
+        <a href={blanketUrl} rel="noopener" target="_blank">Blanket</a>.
+      </p>
+    </div>
+
+    <nav class="footer-links" aria-label="Footer">
+      <h3 class="fluent-caption1-strong footer-h">Project</h3>
+      <ul>
+        <li><a class="fluent-body1" href={repoUrl} target="_blank" rel="noopener">Source on GitHub</a></li>
+        <li><a class="fluent-body1" href={issuesUrl} target="_blank" rel="noopener">Report a bug</a></li>
+        <li><a class="fluent-body1" href={releasesUrl} target="_blank" rel="noopener">Releases</a></li>
+        <li><a class="fluent-body1" href={`${repoUrl}/blob/master/Murmur/Sounds/SOUNDS_LICENSING.md`} target="_blank" rel="noopener">Sound licenses</a></li>
+      </ul>
+    </nav>
+
+    <nav class="footer-links" aria-label="Credits">
+      <h3 class="fluent-caption1-strong footer-h">Credits</h3>
+      <ul>
+        <li class="fluent-body1">Original GTK app: <a href={blanketUrl} target="_blank" rel="noopener">Blanket</a> by Rafael Mardojai CM</li>
+        <li class="fluent-body1">Soundscape edits by Porrumentzio</li>
+        <li class="fluent-body1">Icons from <a href="https://lucide.dev" target="_blank" rel="noopener">lucide.dev</a></li>
+        <li class="fluent-body1">Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> and Fluent 2</li>
+      </ul>
+    </nav>
+  </div>
+
+  <details class="attribution-block container">
+    <summary>
+      <span class="fluent-caption1-strong footer-h">Sound attributions</span>
+      <span class="fluent-mono attribution-meta">CC0 · CC BY · CC BY-SA · Public Domain</span>
+    </summary>
+    <table class="attribution-table">
+      <thead>
+        <tr>
+          <th class="fluent-caption1-strong">Sound</th>
+          <th class="fluent-caption1-strong">Author</th>
+          <th class="fluent-caption1-strong">License</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sounds.map((s) => (
+          <tr>
+            <td class="fluent-body1">{s.name}</td>
+            <td class="fluent-body1">
+              <a href={s.attribution.sourceUrl} target="_blank" rel="noopener">
+                {s.attribution.author}
+              </a>
+            </td>
+            <td><span class="lic-pill fluent-mono">{s.attribution.license}</span></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </details>
+
+  <div class="footer-base container fluent-caption1">
+    <div>© {year} Murmur, released under the <a href={`${repoUrl}/blob/master/LICENSE`} target="_blank" rel="noopener">GPLv3</a>.</div>
+    <div class="fluent-mono">Built with Astro · Hosted on GitHub Pages</div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    background-color: var(--color-neutral-background-2);
+    padding-top: var(--space-4xl);
+    padding-bottom: var(--space-xl);
+    margin-top: var(--space-5xl);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: var(--space-xxxl);
+    margin-bottom: var(--space-xxxl);
+  }
+
+  @media (max-width: 720px) {
+    .footer-grid { grid-template-columns: 1fr; gap: var(--space-l); }
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+  }
+
+  .footer-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-m);
+    color: var(--color-neutral-foreground-1);
+  }
+  .footer-mark:hover { text-decoration: none; }
+
+  .footer-mark-text {
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-subtitle1-size);
+    line-height: 1;
+  }
+
+  .footer-blurb {
+    color: var(--color-neutral-foreground-2);
+    max-width: 30ch;
+  }
+
+  .footer-h {
+    color: var(--color-neutral-foreground-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-m);
+  }
+
+  .footer-links ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  .footer-links li { color: var(--color-neutral-foreground-2); }
+  .footer-links a {
+    color: var(--color-neutral-foreground-2);
+    text-decoration: none;
+  }
+  .footer-links a:hover {
+    color: var(--color-brand-foreground);
+    text-decoration: underline;
+  }
+
+  /* Attribution expander */
+  .attribution-block {
+    border-top: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+    border-bottom: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+    padding-block: var(--space-mn);
+    margin-bottom: var(--space-l);
+  }
+
+  .attribution-block summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+    gap: var(--space-mn);
+    padding: var(--space-s) 0;
+  }
+  .attribution-block summary::-webkit-details-marker { display: none; }
+  .attribution-block summary .footer-h { margin: 0; color: var(--color-neutral-foreground-1); }
+  .attribution-block .attribution-meta {
+    color: var(--color-neutral-foreground-3);
+    letter-spacing: 0.04em;
+  }
+
+  /* Fluent 2 DataGrid: subtle row hover, compact density */
+  .attribution-table {
+    width: 100%;
+    margin-top: var(--space-mn);
+    border-collapse: collapse;
+  }
+
+  .attribution-table th,
+  .attribution-table td {
+    padding: var(--space-s) var(--space-m);
+    text-align: left;
+    border-bottom: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+  }
+
+  .attribution-table th {
+    color: var(--color-neutral-foreground-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .attribution-table td { color: var(--color-neutral-foreground-2); }
+  .attribution-table tbody tr:hover { background-color: var(--color-subtle-background-hover); }
+  .attribution-table a {
+    color: var(--color-neutral-foreground-1);
+    text-decoration: underline;
+    text-decoration-color: var(--color-neutral-stroke-1);
+    text-underline-offset: 3px;
+  }
+  .attribution-table a:hover {
+    text-decoration-color: var(--color-brand-foreground);
+    color: var(--color-brand-foreground);
+  }
+
+  .lic-pill {
+    display: inline-block;
+    padding: var(--space-xxs) var(--space-s);
+    background-color: var(--color-neutral-background-1);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    border-radius: var(--border-radius-circular);
+    color: var(--color-neutral-foreground-3);
+  }
+
+  .footer-base {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-m);
+    color: var(--color-neutral-foreground-3);
+  }
+  .footer-base a {
+    color: var(--color-neutral-foreground-2);
+    text-decoration: underline;
+    text-decoration-color: var(--color-neutral-stroke-1);
+  }
+  .footer-base a:hover { color: var(--color-brand-foreground); }
+</style>

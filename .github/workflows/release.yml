@@ -1,0 +1,180 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 1.0.0). Required.'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  CERT_SUBJECT: 'CN=MurmurDev, O=MurmurDev'
+
+# Self-signed signing model, see CLAUDE.md "Releases" for the trade-offs.
+#
+# A SINGLE job on windows-latest generates the cert, patches the manifest, and
+# builds both architectures sequentially before publishing. The cert NEVER
+# leaves this job, its lifetime is exactly one workflow run.
+#
+# Why single-job: a multi-job design with prepare→matrix can't share a masked
+# password through job outputs (GH Actions strips masked outputs by design),
+# and dropping the mask is the wrong direction. Sequential build adds ~5-7 min
+# of wall-clock vs a matrix, which is acceptable for a release that runs on
+# tag pushes only.
+
+jobs:
+  release:
+    name: Build, sign, and release MSIX bundles
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          $version = if ('${{ github.event_name }}' -eq 'push') {
+            '${{ github.ref_name }}'.TrimStart('v')
+          } else {
+            '${{ inputs.version }}'.TrimStart('v')
+          }
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Version '$version' must be N.N.N (without leading 'v')."
+          }
+          $tag = if ('${{ github.event_name }}' -eq 'push') {
+            '${{ github.ref_name }}'
+          } else {
+            "v$version"
+          }
+          "version=$version"            | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "manifest_version=$version.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "tag=$tag"                    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Version: $version, Tag: $tag"
+
+      - name: Generate self-signed code-signing certificate
+        id: cert
+        shell: pwsh
+        run: |
+          $cert = New-SelfSignedCertificate `
+            -Type CodeSigningCert `
+            -Subject '${{ env.CERT_SUBJECT }}' `
+            -KeyUsage DigitalSignature `
+            -CertStoreLocation 'Cert:\CurrentUser\My' `
+            -NotAfter (Get-Date).AddYears(2) `
+            -KeyExportPolicy Exportable `
+            -KeyAlgorithm RSA -KeyLength 2048
+
+          # Random per-run password. Stays in this job's environment only  
+          # never leaves via outputs/artifacts.
+          $charset = (48..57) + (65..90) + (97..122)
+          $password = -join ($charset | Get-Random -Count 40 | ForEach-Object { [char]$_ })
+          Write-Host "::add-mask::$password"
+
+          $pfxPath = "${{ github.workspace }}\murmur.pfx"
+          $cerPath = "${{ github.workspace }}\murmur.cer"
+          $securePwd = ConvertTo-SecureString -String $password -Force -AsPlainText
+          Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $securePwd | Out-Null
+          Export-Certificate    -Cert $cert -FilePath $cerPath -Type CERT          | Out-Null
+
+          # Pass to subsequent steps in the SAME job via env (not job outputs).
+          "PFX_PASSWORD=$password"   | Out-File -FilePath $env:GITHUB_ENV -Append
+          "CERT_PUBLISHER=$($cert.Subject)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Cert subject: $($cert.Subject)"
+
+      - name: Patch manifest with version + publisher
+        shell: pwsh
+        run: |
+          $path = 'Murmur/Package.appxmanifest'
+          [xml]$xml = Get-Content $path
+          $xml.Package.Identity.Version   = '${{ steps.ver.outputs.manifest_version }}'
+          $xml.Package.Identity.Publisher = $env:CERT_PUBLISHER
+          $xml.Save((Resolve-Path $path).Path)
+          Write-Host "Patched: $($xml.Package.Identity.Name) v$($xml.Package.Identity.Version) by $($xml.Package.Identity.Publisher)"
+
+      - name: Build & sign x64 MSIX
+        shell: pwsh
+        working-directory: Murmur
+        run: |
+          dotnet publish `
+            -c Release `
+            -p:Platform=x64 `
+            -p:RuntimeIdentifier=win-x64 `
+            -p:GenerateAppxPackageOnBuild=true `
+            -p:AppxPackageSigningEnabled=true `
+            -p:PackageCertificateKeyFile='${{ github.workspace }}\murmur.pfx' `
+            -p:PackageCertificatePassword=$env:PFX_PASSWORD `
+            -p:AppxBundle=Always `
+            -p:AppxBundlePlatforms=x64 `
+            -p:UapAppxPackageBuildMode=SideloadOnly `
+            -p:AppxPackageDir='${{ github.workspace }}\artifacts-x64\'
+          if ($LASTEXITCODE -ne 0) { throw "x64 build failed with exit code $LASTEXITCODE" }
+
+      - name: Build & sign ARM64 MSIX
+        shell: pwsh
+        working-directory: Murmur
+        run: |
+          dotnet publish `
+            -c Release `
+            -p:Platform=ARM64 `
+            -p:RuntimeIdentifier=win-arm64 `
+            -p:GenerateAppxPackageOnBuild=true `
+            -p:AppxPackageSigningEnabled=true `
+            -p:PackageCertificateKeyFile='${{ github.workspace }}\murmur.pfx' `
+            -p:PackageCertificatePassword=$env:PFX_PASSWORD `
+            -p:AppxBundle=Always `
+            -p:AppxBundlePlatforms=ARM64 `
+            -p:UapAppxPackageBuildMode=SideloadOnly `
+            -p:AppxPackageDir='${{ github.workspace }}\artifacts-arm64\'
+          if ($LASTEXITCODE -ne 0) { throw "ARM64 build failed with exit code $LASTEXITCODE" }
+
+      - name: Stage release files
+        id: stage
+        shell: pwsh
+        run: |
+          $version = '${{ steps.ver.outputs.version }}'
+          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\release" | Out-Null
+
+          $x64 = Get-ChildItem -Recurse -Filter '*.msixbundle' -Path artifacts-x64 |
+                 Select-Object -First 1
+          if (-not $x64) { throw 'No x64 .msixbundle was produced.' }
+          Copy-Item $x64.FullName "release\Murmur-$version-x64.msixbundle"
+
+          $arm64 = Get-ChildItem -Recurse -Filter '*.msixbundle' -Path artifacts-arm64 |
+                   Select-Object -First 1
+          if (-not $arm64) { throw 'No ARM64 .msixbundle was produced.' }
+          Copy-Item $arm64.FullName "release\Murmur-$version-arm64.msixbundle"
+
+          Copy-Item murmur.cer "release\Murmur-$version.cer"
+          Get-ChildItem release | Format-Table Name, Length
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Murmur ${{ steps.ver.outputs.tag }}
+          generate_release_notes: true
+          prerelease: ${{ inputs.prerelease == true }}
+          files: release/*
+          body: |
+            ## Install
+
+            1. Download `Murmur-${{ steps.ver.outputs.version }}.cer` and install it to **Local Machine → Trusted People** (right-click → *Install Certificate*).
+            2. Download the `.msixbundle` for your CPU (`x64` for most PCs, `arm64` for Snapdragon / Surface Pro X).
+            3. Double-click the `.msixbundle` to install. Murmur appears in your Start menu.
+
+            See the [Murmur website](https://murmur.umaru.dev/#download) for a visual walk-through.
+
+            *The `.cer` is regenerated each release. Trust it once per release.*

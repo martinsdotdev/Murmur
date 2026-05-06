@@ -1,0 +1,192 @@
+---
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import BrandLogo from '../components/BrandLogo.astro';
+import Footer from '../components/Footer.astro';
+import { repoUrl } from '../data/site.ts';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Murmur · Ambient sound mixer for Windows',
+  description = 'Mix nature, city, and soft static into your own ambience. An open-source Windows port of Blanket.',
+} = Astro.props;
+
+const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {/* og:image intentionally omitted until a 1200×630 social card exists. */}
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" type="image/x-icon" href={`${baseUrl}/favicon.ico`} />
+    <link rel="canonical" href={Astro.url.href} />
+
+    <title>{title}</title>
+
+    {/* No-flash theme bootstrap. Runs synchronously before paint. */}
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.dataset.theme = stored;
+            return;
+          }
+        } catch {}
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        document.documentElement.dataset.theme = prefersLight ? 'light' : 'dark';
+      })();
+    </script>
+  </head>
+
+  <body>
+    {/* Acrylic command bar: blur+tint per Fluent 2 acrylic-on-transient guidance.
+        The nav is always visible so it's the closest analogue to a Windows
+        TitleBar with acrylic backdrop. */}
+    <header class="commandbar">
+      <div class="container commandbar-grid">
+        <a href={`${baseUrl}/`} class="wordmark" aria-label="Murmur home">
+          <BrandLogo size={28} />
+          <span class="wordmark-text">Murmur</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#try-it">Try it</a>
+          <a href="#download">Download</a>
+        </nav>
+        <div class="nav-actions">
+          <a href={repoUrl} class="nav-icon" aria-label="View source on GitHub" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.16c-3.2.7-3.87-1.37-3.87-1.37-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.27-5.24-5.65 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.17.92-.26 1.9-.39 2.88-.39s1.96.13 2.88.39c2.2-1.48 3.16-1.17 3.16-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.39-2.69 5.36-5.25 5.65.41.36.78 1.06.78 2.13v3.16c0 .31.21.67.79.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"
+              ></path>
+            </svg>
+          </a>
+          <ThemeToggle />
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <style>
+      /* Fluent 2 acrylic, semi-transparent tint over a heavy blur. */
+      .commandbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--color-neutral-background-1);  /* Solid fallback */
+        background: var(--acrylic-tint);
+        backdrop-filter: blur(40px) saturate(125%);
+        -webkit-backdrop-filter: blur(40px) saturate(125%);
+        border-bottom: var(--stroke-width-thin) solid var(--color-neutral-stroke-2);
+      }
+
+      .commandbar-grid {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: var(--space-xl);
+        padding-block: var(--space-s);
+        min-height: 48px;
+      }
+
+      .wordmark {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-m);
+        color: var(--color-neutral-foreground-1);
+      }
+
+      .wordmark:hover {
+        color: var(--color-neutral-foreground-1);
+        text-decoration: none;
+      }
+
+      .wordmark-text {
+        font-family: var(--font-family-base);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-subtitle2-size);
+        letter-spacing: -0.005em;
+        line-height: 1;
+      }
+
+      .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: var(--space-s);
+      }
+
+      .nav-links a {
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 var(--space-m);
+        color: var(--color-neutral-foreground-2);
+        font-size: var(--font-body1-size);
+        font-weight: var(--font-weight-regular);
+        border-radius: var(--border-radius-small);
+        transition: background-color var(--duration-faster) var(--curve-easy-ease),
+                    color var(--duration-faster) var(--curve-easy-ease);
+      }
+
+      .nav-links a:hover {
+        background-color: var(--color-subtle-background-hover);
+        color: var(--color-neutral-foreground-1);
+        text-decoration: none;
+      }
+
+      .nav-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+
+      .nav-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: var(--border-radius-small);
+        color: var(--color-neutral-foreground-2);
+        transition: background-color var(--duration-faster) var(--curve-easy-ease),
+                    color var(--duration-faster) var(--curve-easy-ease);
+      }
+
+      .nav-icon:hover {
+        background-color: var(--color-subtle-background-hover);
+        color: var(--color-neutral-foreground-1);
+        text-decoration: none;
+      }
+
+      .nav-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      @media (max-width: 720px) {
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </body>
+</html>

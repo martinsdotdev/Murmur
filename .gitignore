@@ -1,0 +1,74 @@
+# .NET / WinUI 3 build outputs
+bin/
+obj/
+out/
+[Bb]uild/
+[Pp]ublish/
+[Rr]eleases/
+AppPackages/
+BundleArtifacts/
+GeneratedFiles/
+PublishProfiles/
+
+# Code-coverage / test results
+[Tt]est[Rr]esult*/
+[Cc]overage/
+*.coverage
+*.coveragexml
+
+# IDE / editor metadata
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.dbmdl
+*.jfm
+
+# JetBrains Rider
+*.sln.iml
+
+# NuGet local cache (if anything ends up local-restored)
+**/packages/*
+!**/packages/build/
+*.nupkg
+*.snupkg
+
+# MSIX / signing
+*.appx
+*.appxbundle
+*.appxupload
+*.msix
+*.msixbundle
+*.msixupload
+*.cer
+*.pfx
+*.p12
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local state directory if anyone keeps a symlink at repo root
+[Ll]ocal[Ss]tate/
+
+# Windows shortcut
+*.lnk
+
+# Superpowers brainstorm sessions (visual companion mockups)
+.superpowers/
+
+# Website (Astro) build artefacts and assets mirrored from Murmur/
+website/node_modules/
+website/dist/
+website/.astro/
+website/public/sounds/
+website/public/icon.svg
+website/public/favicon.ico

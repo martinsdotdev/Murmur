@@ -1,0 +1,86 @@
+---
+import { features } from '../data/features.ts';
+import SoundIcon from './SoundIcon.astro';
+---
+
+<section class="features" id="features" aria-labelledby="features-heading">
+  <div class="container">
+    <h2 id="features-heading" class="fluent-largetitle features-heading">Features</h2>
+
+    <div class="features-grid">
+      {features.map((f) => (
+        <article class="card">
+          <div class="card-icon">
+            <SoundIcon path={f.iconPath} size={20} />
+          </div>
+          <h3 class="fluent-subtitle2 card-title">{f.title}</h3>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .features {
+    position: relative;
+  }
+
+  .features-heading {
+    margin-bottom: var(--space-xxxl);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-mn);
+  }
+
+  /* Fluent 2 card: layer2 background, hairline stroke, $shadow4 elevation. */
+  .card {
+    background-color: var(--color-neutral-background-2);
+    border: var(--stroke-width-thin) solid var(--color-neutral-stroke-1);
+    border-radius: var(--border-radius-medium);
+    padding: var(--space-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-mn);
+    box-shadow: var(--shadow-4);
+    transition:
+      background-color var(--duration-fast) var(--curve-easy-ease),
+      box-shadow var(--duration-fast) var(--curve-easy-ease),
+      transform var(--duration-fast) var(--curve-decelerate-mid);
+  }
+
+  .card:hover {
+    background-color: var(--color-neutral-background-3);
+    box-shadow: var(--shadow-8);
+    transform: translateY(-2px);
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--border-radius-medium);
+    display: grid;
+    place-items: center;
+    background-color: var(--color-subtle-background-selected);
+    color: var(--color-brand-foreground);
+    border: var(--stroke-width-thin) solid var(--color-brand-stroke-2);
+  }
+
+  .card-title {
+    color: var(--color-neutral-foreground-1);
+    margin: 0;
+  }
+
+  /* Tablet: 2 cols */
+  @media (max-width: 980px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Phone: 1 col */
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+  }
+</style>

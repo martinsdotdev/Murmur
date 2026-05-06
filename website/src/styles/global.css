@@ -1,0 +1,298 @@
+@import './tokens.css';
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--color-neutral-background-1);
+  color: var(--color-neutral-foreground-1);
+  font-family: var(--font-family-base);
+  font-size: var(--font-body1-size);
+  line-height: var(--font-body1-line);
+  font-weight: var(--font-weight-regular);
+  /*
+   * Subtle "mica-like" tinted-noise base. The radial gradients are tinted by
+   * the brand accent (mimicking how desktop wallpaper bleeds through Mica).
+   * Replaces the editorial film grain.
+   */
+  background-image:
+    radial-gradient(
+      ellipse 80% 60% at 80% 0%,
+      rgba(245, 195, 117, 0.06) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 80% 60% at 0% 100%,
+      rgba(168, 88, 32, 0.05) 0%,
+      transparent 60%
+    );
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Typography, Fluent 2 type ramp utility classes
+   ========================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.005em;
+  color: var(--color-neutral-foreground-1);
+}
+
+.fluent-display {
+  font-family: var(--font-family-display);
+  font-size: var(--font-display-size);
+  line-height: var(--font-display-line);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+}
+
+.fluent-largetitle {
+  font-family: var(--font-family-display);
+  font-size: var(--font-largetitle-size);
+  line-height: var(--font-largetitle-line);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.015em;
+}
+
+.fluent-title1 {
+  font-family: var(--font-family-display);
+  font-size: var(--font-title1-size);
+  line-height: var(--font-title1-line);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.fluent-title2 {
+  font-family: var(--font-family-display);
+  font-size: var(--font-title2-size);
+  line-height: var(--font-title2-line);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.fluent-title3 {
+  font-family: var(--font-family-display);
+  font-size: var(--font-title3-size);
+  line-height: var(--font-title3-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fluent-subtitle1 {
+  font-size: var(--font-subtitle1-size);
+  line-height: var(--font-subtitle1-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fluent-subtitle2 {
+  font-size: var(--font-subtitle2-size);
+  line-height: var(--font-subtitle2-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fluent-body1 {
+  font-size: var(--font-body1-size);
+  line-height: var(--font-body1-line);
+  font-weight: var(--font-weight-regular);
+}
+
+.fluent-body1-strong {
+  font-size: var(--font-body1-size);
+  line-height: var(--font-body1-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fluent-caption1 {
+  font-size: var(--font-caption1-size);
+  line-height: var(--font-caption1-line);
+  font-weight: var(--font-weight-regular);
+}
+
+.fluent-caption1-strong {
+  font-size: var(--font-caption1-size);
+  line-height: var(--font-caption1-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.fluent-mono {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-caption1-size);
+  line-height: var(--font-caption1-line);
+}
+
+p {
+  color: var(--color-neutral-foreground-2);
+  max-width: 64ch;
+}
+
+a {
+  color: var(--color-brand-foreground);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--curve-easy-ease);
+}
+
+a:hover {
+  color: var(--color-brand-foreground-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+button {
+  font-family: inherit;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Focus rings, Fluent 2 dual-ring (outer + inner)
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--focus-stroke-outer);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-small);
+}
+
+/* ==========================================================================
+   Buttons, Fluent 2 variants
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  height: 32px;
+  padding: 0 var(--space-mn);
+  font-family: var(--font-family-base);
+  font-size: var(--font-body1-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  border-radius: var(--border-radius-small);
+  border: var(--stroke-width-thin) solid transparent;
+  transition:
+    background-color var(--duration-faster) var(--curve-easy-ease),
+    border-color var(--duration-faster) var(--curve-easy-ease),
+    color var(--duration-faster) var(--curve-easy-ease);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn-large {
+  height: 40px;
+  padding: 0 var(--space-l);
+  font-size: var(--font-subtitle2-size);
+}
+
+/* Primary (accent / brand) */
+.btn-primary {
+  background-color: var(--color-brand-background);
+  color: var(--color-neutral-foreground-on-brand);
+  box-shadow: var(--shadow-2);
+}
+.btn-primary:hover {
+  background-color: var(--color-brand-background-hover);
+  color: var(--color-neutral-foreground-on-brand);
+  text-decoration: none;
+}
+.btn-primary:active {
+  background-color: var(--color-brand-background-pressed);
+}
+
+/* Secondary (default outlined) */
+.btn-secondary {
+  background-color: var(--color-neutral-background-2);
+  color: var(--color-neutral-foreground-1);
+  border-color: var(--color-neutral-stroke-1);
+}
+.btn-secondary:hover {
+  background-color: var(--color-neutral-background-3);
+  color: var(--color-neutral-foreground-1);
+  text-decoration: none;
+}
+.btn-secondary:active {
+  background-color: var(--color-neutral-background-4);
+}
+
+/* Subtle (transparent until hover) */
+.btn-subtle {
+  background-color: var(--color-subtle-background);
+  color: var(--color-neutral-foreground-2);
+}
+.btn-subtle:hover {
+  background-color: var(--color-subtle-background-hover);
+  color: var(--color-neutral-foreground-1);
+  text-decoration: none;
+}
+.btn-subtle:active {
+  background-color: var(--color-subtle-background-pressed);
+}
+
+/* ==========================================================================
+   Layout container
+   ========================================================================== */
+
+.container {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: clamp(var(--space-mn), 5vw, var(--space-xxxl));
+}
+
+section {
+  padding-block: clamp(var(--space-xxxl), 10vw, var(--space-5xl));
+}
+
+/* ==========================================================================
+   Decorations
+   ========================================================================== */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+  font-family: var(--font-family-base);
+  font-size: var(--font-caption1-size);
+  line-height: var(--font-caption1-line);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brand-foreground);
+}
+.eyebrow::before {
+  content: '';
+  width: 16px;
+  height: 1px;
+  background: var(--color-brand-foreground);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-neutral-stroke-2);
+  border: 0;
+}
+
+::selection {
+  background: var(--color-brand-background);
+  color: var(--color-neutral-foreground-on-brand);
+}
